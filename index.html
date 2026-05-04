@@ -1,408 +1,1073 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Random Search – Demo Exposición Visual Profesional</title>
-  <style>
-    :root {
-      --azul: #173a60;
-      --azul2: #0b2342;
-      --dorado: #FFD846;
-      --verde: #1CB063;
-      --naranja: #FF7C37;
-      --gris: #F8F9FC;
-      --osc: #182331;
-    }
-    body { background: var(--gris); color: var(--osc); font-family: 'Segoe UI', 'Arial', sans-serif; margin:0;}
-    .container { max-width: 1200px; margin: 0 auto; padding: 2.7rem 2vw 4.5rem 2vw; }
-    header { background: linear-gradient(90deg, var(--azul) 68%, #203456 100%); color:#fff;
-      border-radius: 1.2em; box-shadow: 0 6px 50px #0001;
-      padding:2.7em 3vw 2.5em 3vw; margin:0 0 2.4em 0;}
-    header h1 { font-size:2.34rem; }
-    header .subtitle {font-size:1.16rem;margin-top:1.18em;color:#ffe493;}
-    .prof-block {background:#fff; border-radius: 1em; box-shadow:0 2px 27px #0001;
-      margin:2.15em 0; padding:2.45em 4vw;}
-    .prof-block .title {color:var(--azul);font-size:1.27rem;font-weight:bold;margin-bottom:.77em;}
-    .prof-desc {font-size:1.13em;line-height:1.7em;margin-bottom:1.14em;}
-    .prof-widget {margin:1.9em 0 1.5em 0;}
-    .btn-anima{background:var(--azul2);color:#fff;font-size:1.18em;padding:.36em 1.35em 0.45em 1.35em;
-      font-weight:500;border-radius:7px;border:none;box-shadow:0 2px 8px #18455f0c;cursor:pointer;}
-    .btn-anima:active{background:var(--dorado);color:var(--azul);}
-    .anima-text{min-height:44px;margin:.48em 0 0.33em 0;padding:.15em 0 0 0;}
-    .anima-ctn{margin:1.1em 0 1.4em 0;}
-    .center{display:flex; flex-direction:column; align-items:center;}
-    .colores-legend{display:flex;gap:2.2em;margin:1.30em 0;}
-    .colores-legend span{display:flex;align-items:center;gap:.36em;font-size:1.12em;}
-    .legend-dot{width:23px;height:23px;display:inline-block;border-radius:50%;vertical-align:middle;}
-    .dot-search{background:var(--naranja);}
-    .dot-optimo{background:var(--verde);}
-    .dot-grid{background:#bbc5e2;}
-    .param-table{width:100%;margin-top:1.1em;border-collapse:collapse;}
-    .param-table th{background:var(--azul2);color:#fff;}
-    .param-table td, .param-table th{padding:.86em .7em;font-size:1.09em;border:1px solid #eaeaea;}
-    .param-table td{background:#f9fafc;}
-    .o-block {background:#f0faf4; color:#1956a8; font-family:monospace;padding:.11em .63em; border-radius:7px}
-    @media(max-width:1050px){
-      .container,.prof-block,header{padding:1.13em;}
-      canvas{width:94vw !important; max-width:99vw !important;}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Random Search — Conferencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────────────────────── */
+:root{
+  --bg:#0b1120; --bg2:#111827; --bg3:#1a2236;
+  --card:#151e30; --card2:#1c2840;
+  --border:#1f3050;
+  --txt:#e8edf8; --txt2:#8a9bc0; --txt3:#c2cfe0;
+  --accent:#4f9cf9; --accent2:#7c3aed;
+  --gold:#f0b429; --green:#22c55e; --orange:#fb923c; --red:#f87171;
+  --glow:rgba(79,156,249,.22);
+  --font:'Space Grotesk',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --head:'Syne',sans-serif;
+  --rad:14px; --rad2:8px;
+  --shadow:0 8px 40px rgba(0,0,0,.45);
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="light"]{
+  --bg:#f0f4ff; --bg2:#e8edf7; --bg3:#dce4f2;
+  --card:#fff; --card2:#f5f8ff;
+  --border:#d0daf0; --txt:#1a2236; --txt2:#4a5880; --txt3:#2d3e60;
+  --shadow:0 8px 40px rgba(30,60,130,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden;}
+
+/* ─── NOISE TEXTURE OVERLAY ─────────────────────────────────── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6;}
+
+/* ─── NAV ────────────────────────────────────────────────────── */
+#topnav{
+  position:sticky;top:0;z-index:999;
+  background:rgba(11,17,32,.88);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  padding:.55rem 1rem;
+  display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;justify-content:center;
+  transition:var(--transition);
+}
+[data-theme="light"] #topnav{background:rgba(240,244,255,.92);}
+.nav-btn{
+  background:transparent;border:1px solid var(--border);color:var(--txt2);
+  font-family:var(--font);font-size:.78rem;font-weight:500;
+  padding:.3rem .75rem;border-radius:30px;cursor:pointer;
+  transition:var(--transition);white-space:nowrap;
+}
+.nav-btn:hover,.nav-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 14px var(--glow);}
+#theme-toggle{
+  margin-left:auto;background:transparent;border:1px solid var(--border);
+  color:var(--txt2);font-size:1.1rem;width:34px;height:34px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);
+}
+#theme-toggle:hover{background:var(--card2);color:var(--gold);}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────── */
+.container{max-width:1120px;margin:0 auto;padding:0 1.5rem 5rem;}
+
+/* ─── HERO ───────────────────────────────────────────────────── */
+.hero{
+  position:relative;overflow:hidden;
+  padding:4.5rem 3rem 4rem;margin:2rem 0;
+  background:linear-gradient(135deg,#0d1f3c 0%,#0b2952 50%,#0a1628 100%);
+  border:1px solid var(--border);border-radius:22px;
+  box-shadow:var(--shadow);
+}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(79,156,249,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,156,249,.06) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+.hero-glow{position:absolute;top:-80px;right:-80px;width:450px;height:450px;background:radial-gradient(circle,rgba(79,156,249,.18) 0%,transparent 70%);pointer-events:none;}
+.hero h1{font-family:var(--head);font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;position:relative;}
+.hero h1 span{background:linear-gradient(90deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.1rem;color:var(--txt2);margin-top:1rem;max-width:560px;position:relative;}
+.hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(79,156,249,.12);border:1px solid rgba(79,156,249,.3);color:var(--accent);font-size:.78rem;font-weight:600;padding:.25rem .7rem;border-radius:20px;margin-bottom:1rem;letter-spacing:.06em;}
+.progress-bar{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:2rem;position:relative;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#a78bfa);border-radius:2px;transition:width .4s ease;width:0%;}
+
+/* ─── SECTION CARD ───────────────────────────────────────────── */
+.s-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--rad);
+  padding:2.2rem 2.5rem;margin:1.8rem 0;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+  transition:var(--transition);
+}
+.s-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#a78bfa);opacity:0;transition:opacity .3s;}
+.s-card:hover::before{opacity:1;}
+.s-card:hover{border-color:rgba(79,156,249,.3);}
+.s-num{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;}
+.s-title{font-family:var(--head);font-size:1.45rem;font-weight:700;margin-bottom:.9rem;line-height:1.2;}
+.s-desc{color:var(--txt3);font-size:1rem;line-height:1.72;margin-bottom:1.2rem;}
+.s-desc b,.s-desc strong{color:var(--txt);font-weight:600;}
+
+/* ─── TAKEAWAY BANNER ────────────────────────────────────────── */
+.takeaway{
+  background:linear-gradient(90deg,rgba(79,156,249,.1),rgba(124,58,237,.1));
+  border:1px solid rgba(79,156,249,.25);border-radius:var(--rad2);
+  padding:.85rem 1.1rem;margin-top:1.2rem;font-size:.92rem;
+  display:flex;gap:.6rem;align-items:flex-start;
+}
+.takeaway-icon{font-size:1.2rem;flex-shrink:0;margin-top:.1rem;}
+.takeaway-text{color:var(--txt3);}
+.takeaway-text strong{color:var(--accent);}
+
+/* ─── FORMULA BLOCK ──────────────────────────────────────────── */
+.formula{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad2);
+  padding:1.1rem 1.5rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;
+  display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;
+}
+.formula-part{display:flex;flex-direction:column;gap:.15rem;}
+.formula-eq{font-size:1.3rem;font-weight:700;color:var(--accent);}
+.formula-label{font-size:.72rem;color:var(--txt2);font-family:var(--font);}
+.var-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.55rem;margin:.8rem 0;}
+.var-row{background:var(--bg3);border-radius:var(--rad2);padding:.5rem .8rem;display:flex;gap:.6rem;align-items:center;}
+.var-tag{font-family:var(--mono);font-weight:700;color:var(--gold);font-size:.95rem;min-width:28px;}
+.var-def{font-size:.85rem;color:var(--txt3);}
+
+/* ─── CANVAS WRAPPER ─────────────────────────────────────────── */
+.canvas-wrap{position:relative;margin:1.5rem 0;}
+canvas{display:block;width:100%;border-radius:12px;}
+.canvas-tooltip{
+  position:absolute;background:var(--card2);border:1px solid var(--border);
+  border-radius:var(--rad2);padding:.5rem .8rem;font-size:.8rem;color:var(--txt);
+  pointer-events:none;display:none;white-space:nowrap;box-shadow:var(--shadow);z-index:10;
+}
+
+/* ─── CONTROLS ───────────────────────────────────────────────── */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;margin:.8rem 0 1.2rem;}
+.ctrl-label{font-size:.85rem;color:var(--txt2);white-space:nowrap;}
+.ctrl-val{font-family:var(--mono);font-weight:700;color:var(--accent);min-width:40px;text-align:center;}
+input[type=range]{-webkit-appearance:none;width:180px;height:5px;background:var(--border);border-radius:3px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px var(--glow);}
+input[type=number]{width:62px;background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-family:var(--mono);font-size:.9rem;padding:.25rem .4rem;border-radius:var(--rad2);text-align:center;}
+.btn{
+  background:var(--accent);color:#fff;border:none;font-family:var(--font);
+  font-size:.88rem;font-weight:600;padding:.45rem 1.1rem;border-radius:30px;
+  cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:.4rem;
+  box-shadow:0 4px 18px var(--glow);
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--glow);}
+.btn:active{transform:translateY(0);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--txt2);box-shadow:none;}
+.btn-ghost:hover{background:var(--card2);color:var(--txt);border-color:var(--accent);}
+.btn-green{background:var(--green);}
+.btn-sm{font-size:.78rem;padding:.3rem .75rem;}
+
+/* ─── RESULT BOX ─────────────────────────────────────────────── */
+.result-box{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad2);
+  padding:.85rem 1.1rem;margin-top:.9rem;font-size:.88rem;color:var(--txt3);
+  min-height:48px;transition:var(--transition);
+}
+.result-box b,.result-box strong{color:var(--txt);}
+
+/* ─── COMPARISON TABLE ───────────────────────────────────────── */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:1.2rem;}
+.cmp-table th{background:var(--bg3);padding:.75rem 1rem;text-align:left;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--txt2);border-bottom:1px solid var(--border);}
+.cmp-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;color:var(--txt3);}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:hover td{background:var(--bg3);}
+.cmp-rs{color:var(--orange);font-weight:600;}
+.cmp-gs{color:var(--accent);font-weight:600;}
+.pill{display:inline-block;padding:.15rem .55rem;border-radius:12px;font-size:.75rem;font-weight:600;margin:.1rem .1rem 0 0;}
+.pill-g{background:rgba(34,197,94,.15);color:var(--green);}
+.pill-r{background:rgba(248,113,113,.15);color:var(--red);}
+
+/* ─── HW RECOMMENDER ─────────────────────────────────────────── */
+.hw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.7rem;margin-top:.8rem;}
+.hw-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad2);
+  padding:.75rem .6rem;text-align:center;transition:var(--transition);cursor:default;
+  opacity:.35;
+}
+.hw-card.active{opacity:1;border-color:var(--accent);background:rgba(79,156,249,.08);box-shadow:0 0 18px var(--glow);}
+.hw-card.active.warn{border-color:var(--red);background:rgba(248,113,113,.08);}
+.hw-icon{font-size:2rem;display:block;margin-bottom:.3rem;}
+.hw-label{font-size:.73rem;color:var(--txt2);font-weight:500;}
+
+/* ─── SANDBOX ────────────────────────────────────────────────── */
+.sb-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1rem;}
+@media(max-width:700px){.sb-grid{grid-template-columns:1fr;}}
+.sb-param{display:flex;flex-direction:column;gap:.35rem;}
+.sb-param label{font-size:.8rem;color:var(--txt2);}
+.sb-param input{background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-family:var(--mono);padding:.4rem .6rem;border-radius:var(--rad2);font-size:.9rem;}
+.sb-result{
+  grid-column:1/-1;background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--rad);padding:1rem;font-family:var(--mono);font-size:.83rem;
+  color:var(--txt3);min-height:80px;line-height:1.8;
+}
+
+/* ─── QUIZ ───────────────────────────────────────────────────── */
+.quiz-q{font-weight:600;font-size:.95rem;color:var(--txt);margin-bottom:.6rem;}
+.quiz-opts{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;}
+.quiz-opt{
+  background:var(--bg3);border:1px solid var(--border);color:var(--txt3);
+  font-family:var(--font);font-size:.85rem;padding:.45rem .9rem;border-radius:30px;
+  cursor:pointer;transition:var(--transition);
+}
+.quiz-opt:hover{border-color:var(--accent);color:var(--txt);}
+.quiz-opt.correct{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green);}
+.quiz-opt.wrong{background:rgba(248,113,113,.15);border-color:var(--red);color:var(--red);}
+.quiz-feedback{font-size:.85rem;color:var(--txt2);min-height:22px;padding-left:.2rem;}
+.quiz-score{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--accent);margin-top:1rem;}
+
+/* ─── SPLIT CANVAS ───────────────────────────────────────────── */
+.split-canvases{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.2rem 0;}
+@media(max-width:640px){.split-canvases{grid-template-columns:1fr;}}
+.split-title{font-size:.78rem;text-align:center;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt2);margin-bottom:.4rem;}
+
+/* ─── LEGEND ─────────────────────────────────────────────────── */
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0;}
+.leg-item{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--txt2);}
+.leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+
+/* ─── FOOTER ─────────────────────────────────────────────────── */
+.footer{text-align:center;padding:2rem 0;font-size:.8rem;color:var(--txt2);border-top:1px solid var(--border);margin-top:3rem;}
+
+/* ─── STEP FLOW ──────────────────────────────────────────────── */
+.step-nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;}
+
+/* ─── ANIM ───────────────────────────────────────────────────── */
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp .5s ease both;}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────── */
+@media(max-width:760px){
+  .s-card{padding:1.4rem 1.2rem;}
+  .hero{padding:2.5rem 1.5rem 2rem;}
+  .controls{flex-direction:column;align-items:flex-start;}
+}
+</style>
 </head>
 <body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════ -->
+<nav id="topnav">
+  <button class="nav-btn active" onclick="scrollTo('s-intro')">01 · ¿Qué es?</button>
+  <button class="nav-btn" onclick="scrollTo('s-complexity')">02 · Complejidad</button>
+  <button class="nav-btn" onclick="scrollTo('s-darts')">03 · Visualización</button>
+  <button class="nav-btn" onclick="scrollTo('s-steps')">04 · Pasos</button>
+  <button class="nav-btn" onclick="scrollTo('s-compare')">05 · RS vs GS</button>
+  <button class="nav-btn" onclick="scrollTo('s-cost')">06 · Big O Live</button>
+  <button class="nav-btn" onclick="scrollTo('s-sandbox')">07 · Sandbox</button>
+  <button class="nav-btn" onclick="scrollTo('s-quiz')">08 · Quiz</button>
+  <button id="theme-toggle" title="Cambiar tema" onclick="toggleTheme()">☀️</button>
+</nav>
+
 <div class="container">
 
-<header>
-  <h1>Random Search<br><span style="color:var(--dorado);"></span></h1>
-</header>
-
-<!-- 1. Qué es Random Search (dardos) -->
-<section class="prof-block">
-  <div class="title">¿Qué es Random Search?</div>
-  <div class="prof-desc">
-    Random Search es una forma de explorar y probar distintas opciones en problemas complejos, eligiendo <b>soluciones al azar</b> dentro de todo el espacio posible.<br>
-    Es como lanzar dardos hacia una diana gigante, pero sólo unos pocos caen (probar todo es imposible).
-  </div>
-  <div class="center anima-ctn">
-    <button class="btn-anima" onclick="showDarts()">Ver animación ▶️</button>
-    <canvas id="darts" width="650" height="260" style="background:#fefdff;border-radius:13px;margin:1.2em 0 0 0;box-shadow:0 2px 20px #b4bfc812;"></canvas>
-    <div class="anima-text" id="dartsTxt"></div>
-  </div>
-</section>
-
-<!-- 2. Analogía visual: garage -->
-<section class="prof-block">
-  <div class="title">Analogía Visual: El Garage de Equipos</div>
-  <div class="prof-desc">
-    El “garage” es el universo de combinaciones de modelos posibles.<br>
-    Random Search escoge algunos autos al azar y busca el ganador. Verlo ayuda a entender la diferencia frente a buscar “todos los autos”.
-  </div>
-  <div class="center anima-ctn">
-    <button class="btn-anima" onclick="showGarage()">Mostrar Garage ▶️</button>
-    <canvas id="garage" width="650" height="165" style="background:#f6f7fa;border-radius:13px;box-shadow:0 2px 12px #ffe06111;margin:1.23em auto 0 auto;"></canvas>
-    <div class="anima-text" id="garageTxt"></div>
-  </div>
-</section>
-
-<!-- 3. Funcionamiento paso a paso, animación secuencial -->
-<section class="prof-block">
-  <div class="title">Funcionamiento Secuencial de Random Search</div>
-  <div class="prof-desc">Cada etapa: definir espacio, seleccionar aleatorio, evaluar, elegir... El ciclo fundamental de Random Search.</div>
-  <div class="center anima-ctn">
-    <button class="btn-anima" onclick="showStepwise()">Siguiente paso ▶️</button>
-    <canvas id="stepWise" width="690" height="180" style="background:#f8fbfc;border-radius:13px;margin:1.5em auto 0 auto;"></canvas>
-    <div class="anima-text" id="stepWiseTxt"></div>
-  </div>
-</section>
-
-<!-- 4. Árbol binario profesional, resaltando la profundidad -->
-<section class="prof-block">
-  <div class="title">Un árbol de decisión (ejemplo)</div>
-  <div class="prof-desc">
-    Cada configuración probada por Random Search genera “árboles binarios” (mecanismos reales de diagnóstico automático).
-  </div>
-  <div class="center anima-ctn">
-    <button class="btn-anima" onclick="drawTree()">Mostrar árbol ▶️</button>
-    <canvas id="tree" width="570" height="210" style="background:#eef8fc;border-radius:14px;box-shadow:0 1px 18px #5690da33;margin:1.4em 0 0 0;"></canvas>
-    <div class="anima-text" id="treeTxt"></div>
-  </div>
-</section>
-
-<!-- 5. Visualización comparativa -->
-<section class="prof-block">
-  <div class="title">Random Search vs Grid Search</div>
-  <div style="font-size:1.14em;margin-bottom:.65em;">
-    Compara visualmente cuántos intentos usa cada método y el “ahorro” de Random Search.
-  </div>
-  <div class="center anima-ctn">
-    <label>Random intentos:<input id="tries" type="number" min="3" max="22" value="8" style="width:3em;margin-right:1.6em;margin-left:.45em;"></label>
-    <label>Grid resol:<input id="resGrid" type="number" min="2" max="8" value="4" style="width:3em;margin-left:.5em;"></label>
-    <button class="btn-anima" onclick="simulateSearch()">Ejecutar</button>
-    <canvas id="scatter" width="650" height="325" style="background:#fcfcfd;border-radius:17px;margin:2em auto 0 auto;box-shadow:0 2px 25px #bad9f73d;"></canvas>
-    <div class="colores-legend">
-      <span><span class="legend-dot dot-search"></span>Random</span>
-      <span><span class="legend-dot dot-optimo"></span>Óptimo</span>
-      <span><span class="legend-dot dot-grid"></span>Grid</span>
-    </div>
-    <div class="anima-text" id="scatterTxt"></div>
-  </div>
-</section>
-
-<!-- 6. Teoría final y big-O -->
-<section class="prof-block">
-  <div class="title">Coste computacional y eficiencia (Big O)</div>
-  <div class="prof-desc">
-    <b>Random Search:</b> <span class="o-block">O(k·C)</span> &nbsp;
-    <b>Grid Search:</b> <span class="o-block">O(g·C)</span><br>
-    <i>“k” = intentos random, “g” = toda la grilla, “C” = coste de entrenar/evaluar un modelo.</i><br>
-    <b>Cuanto más grande el espacio, más ahorro de Random Search.</b>
-  </div>
-</section>
+<!-- ═══ HERO ════════════════════════════════════════════════════ -->
+<div class="hero fade-up">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge">📡 CONFERENCIA · MACHINE LEARNING</div>
+  <h1>Random<br><span>Search</span></h1>
+  <p class="hero-sub">Cómo encontrar lo mejor sin probar todo — una estrategia inteligente de exploración para espacios de parámetros complejos.</p>
+  <div class="progress-bar"><div class="progress-fill" id="scrollProgress"></div></div>
 </div>
 
+<!-- ═══ 01 · QUÉ ES ══════════════════════════════════════════════ -->
+<section id="s-intro" class="s-card fade-up">
+  <div class="s-num">01 · Concepto Fundamental</div>
+  <div class="s-title">¿Qué es Random Search?</div>
+  <div class="s-desc">
+    En Machine Learning, un modelo tiene <strong>hiperparámetros</strong> — configuraciones que tú decides antes de entrenar: cuántos árboles, qué tan profundos, qué tasa de aprendizaje. El problema: hay miles de combinaciones posibles.<br><br>
+    <strong>Random Search</strong> es una estrategia que selecciona un subconjunto de esas combinaciones <em>de forma aleatoria</em> dentro del espacio definido, las evalúa, y elige la mejor. No busca todas las opciones — las <em>muestrea</em>.
+  </div>
+  <div class="formula">
+    <div class="formula-part">
+      <span class="formula-eq">Configuración = (p₁, p₂, …, pₘ)</span>
+      <span class="formula-label">Vector de hiperparámetros sampled aleatoriamente</span>
+    </div>
+    <div class="formula-part">
+      <span class="formula-eq">k muestras → mejor resultado</span>
+      <span class="formula-label">Solo k de las infinitas combinaciones posibles</span>
+    </div>
+  </div>
+  <div class="takeaway">
+    <span class="takeaway-icon">💡</span>
+    <div class="takeaway-text"><strong>Intuición clave:</strong> Según Bergstra & Bengio (2012), en espacios de alta dimensión Random Search es más eficiente que Grid Search porque los hiperparámetros no contribuyen por igual al rendimiento — algunos apenas importan.</div>
+  </div>
+</section>
+
+<!-- ═══ 02 · COMPLEJIDAD ══════════════════════════════════════════ -->
+<section id="s-complexity" class="s-card fade-up">
+  <div class="s-num">02 · Complejidad Computacional</div>
+  <div class="s-title">O(n × C) — ¿Qué significa cada variable?</div>
+  <div class="s-desc">La complejidad de Random Search se expresa de forma simple y directa:</div>
+
+  <div class="formula" style="font-size:1.25rem;padding:1.4rem;">
+    <div class="formula-part">
+      <span class="formula-eq" style="font-size:1.8rem;color:var(--orange);">O(n × C)</span>
+      <span class="formula-label">Complejidad total de Random Search</span>
+    </div>
+  </div>
+
+  <div class="var-legend">
+    <div class="var-row">
+      <span class="var-tag">n</span>
+      <div class="var-def"><strong style="color:var(--txt);">Número de muestras aleatorias.</strong> Tú eliges cuántas combinaciones probar. Es lineal: doblas n → doblas el tiempo.</div>
+    </div>
+    <div class="var-row">
+      <span class="var-tag">C</span>
+      <div class="var-def"><strong style="color:var(--txt);">Costo de evaluar UNA configuración.</strong> Incluye entrenar el modelo + calcular la métrica (accuracy, F1, etc.). Depende del hardware y datos.</div>
+    </div>
+    <div class="var-row">
+      <span class="var-tag">n×C</span>
+      <div class="var-def"><strong style="color:var(--txt);">Costo total real.</strong> Si n=50 muestras y C=10 segundos/modelo → 500 segundos totales. Completamente predecible.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.4rem;">
+    <div class="s-desc" style="margin-bottom:.5rem;"><strong>Comparado con Grid Search → O(gᵈ × C):</strong></div>
+    <div class="var-legend">
+      <div class="var-row">
+        <span class="var-tag" style="color:var(--accent);">g</span>
+        <div class="var-def"><strong style="color:var(--txt);">Resolución de la grilla.</strong> Cuántos valores por hiperparámetro (ej: 5 valores de learning_rate).</div>
+      </div>
+      <div class="var-row">
+        <span class="var-tag" style="color:var(--accent);">d</span>
+        <div class="var-def"><strong style="color:var(--txt);">Dimensiones / número de hiperparámetros.</strong> Con 3 hiperparámetros y g=5 → 5³ = 125 combinaciones.</div>
+      </div>
+      <div class="var-row" style="border-color:rgba(248,113,113,.3);">
+        <span class="var-tag" style="color:var(--red);">gᵈ</span>
+        <div class="var-def"><strong style="color:var(--red);">Explosión combinatoria.</strong> d=5, g=5 → 3,125 evaluaciones. d=10, g=5 → ¡9.7 millones!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparacion formula visual -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.2rem;">
+    <div style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.3);border-radius:var(--rad);padding:1rem;text-align:center;">
+      <div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--orange);">O(n · C)</div>
+      <div style="font-size:.8rem;color:var(--txt2);margin-top:.3rem;">Random Search</div>
+      <div style="font-size:.78rem;color:var(--green);margin-top:.5rem;font-weight:600;">↑ LINEAL — Controlable</div>
+    </div>
+    <div style="background:rgba(79,156,249,.08);border:1px solid rgba(79,156,249,.3);border-radius:var(--rad);padding:1rem;text-align:center;">
+      <div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--accent);">O(gᵈ · C)</div>
+      <div style="font-size:.8rem;color:var(--txt2);margin-top:.3rem;">Grid Search</div>
+      <div style="font-size:.78rem;color:var(--red);margin-top:.5rem;font-weight:600;">↑ EXPONENCIAL — Peligroso</div>
+    </div>
+  </div>
+  <div class="takeaway" style="margin-top:1.2rem;">
+    <span class="takeaway-icon">🎯</span>
+    <div class="takeaway-text"><strong>Conclusión:</strong> Random Search escala linealmente — tú controlas el presupuesto computacional con un solo número (n). Grid Search escala exponencialmente — se vuelve intratable con más de 4-5 hiperparámetros.</div>
+  </div>
+</section>
+
+<!-- ═══ 03 · DARDOS (VISUALIZACIÓN) ══════════════════════════════ -->
+<section id="s-darts" class="s-card fade-up">
+  <div class="s-num">03 · Analogía Visual</div>
+  <div class="s-title">El Espacio de Búsqueda como Diana</div>
+  <div class="s-desc">El universo de todas las configuraciones posibles es como una diana enorme. Random Search lanza <strong>n dardos al azar</strong>. Grid Search coloca dardos en una rejilla uniforme. Ambos intentan acercarse al <strong>centro verde</strong> (configuración óptima).</div>
+  <div class="controls">
+    <span class="ctrl-label">Muestras n:</span>
+    <input type="range" min="3" max="30" value="10" id="darts_n" oninput="dartUpdate()">
+    <span class="ctrl-val" id="darts_nv">10</span>
+    <button class="btn" onclick="animDarts()">▶ Animar Random Search</button>
+    <button class="btn btn-ghost" onclick="animGrid()">Mostrar Grid Search</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearDarts()">↺ Limpiar</button>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="c-darts" height="320"></canvas>
+    <div class="canvas-tooltip" id="tt-darts"></div>
+  </div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div>Random Search</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div>Grid Search</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Óptimo real</div>
+    <div class="leg-item"><div class="leg-dot" style="background:rgba(240,180,41,.4)"></div>Mejor encontrado</div>
+  </div>
+  <div class="result-box" id="darts-result">Presiona ▶ Animar para ver Random Search en acción.</div>
+</section>
+
+<!-- ═══ 04 · PASOS ════════════════════════════════════════════════ -->
+<section id="s-steps" class="s-card fade-up">
+  <div class="s-num">04 · Algoritmo Paso a Paso</div>
+  <div class="s-title">Cómo funciona Random Search internamente</div>
+  <div class="s-desc">El algoritmo tiene 4 etapas fundamentales. Usa los botones para recorrerlas y ver la animación correspondiente.</div>
+  <div class="step-nav">
+    <button class="btn btn-ghost" id="sbtn0" onclick="goStep(0)">1 · Espacio</button>
+    <button class="btn btn-ghost" id="sbtn1" onclick="goStep(1)">2 · Muestrear</button>
+    <button class="btn btn-ghost" id="sbtn2" onclick="goStep(2)">3 · Evaluar</button>
+    <button class="btn btn-ghost" id="sbtn3" onclick="goStep(3)">4 · Seleccionar</button>
+    <button class="btn btn-sm" onclick="autoSteps()">▶ Auto</button>
+  </div>
+  <div class="canvas-wrap" style="margin-top:1rem;">
+    <canvas id="c-steps" height="200"></canvas>
+  </div>
+  <div class="result-box" id="steps-result" style="font-size:.9rem;">Selecciona un paso para ver la explicación detallada.</div>
+</section>
+
+<!-- ═══ 05 · COMPARADOR RS vs GS ══════════════════════════════════ -->
+<section id="s-compare" class="s-card fade-up">
+  <div class="s-num">05 · Comparación Directa</div>
+  <div class="s-title">Random Search vs Grid Search — Visual</div>
+  <div class="controls">
+    <span class="ctrl-label">Muestras RS (n):</span>
+    <input type="range" min="3" max="25" value="10" id="cmp_rs" oninput="runCompare()">
+    <span class="ctrl-val" id="cmp_rsv">10</span>
+    <span class="ctrl-label" style="margin-left:.5rem;">Grilla GS:</span>
+    <input type="range" min="2" max="9" value="5" id="cmp_gs" oninput="runCompare()">
+    <span class="ctrl-val" id="cmp_gsv">5</span>
+    <button class="btn" onclick="runCompare()">▶ Comparar</button>
+  </div>
+  <div class="split-canvases">
+    <div>
+      <div class="split-title" style="color:var(--orange);">RANDOM SEARCH</div>
+      <canvas id="c-rs" height="260"></canvas>
+    </div>
+    <div>
+      <div class="split-title" style="color:var(--accent);">GRID SEARCH</div>
+      <canvas id="c-gs" height="260"></canvas>
+    </div>
+  </div>
+  <div class="result-box" id="cmp-result"></div>
+
+  <!-- Tabla pros/contras -->
+  <table class="cmp-table" style="margin-top:1.8rem;">
+    <tr><th></th><th><span class="cmp-rs">⚡ Random Search</span></th><th><span class="cmp-gs">⬛ Grid Search</span></th></tr>
+    <tr>
+      <td><strong>Complejidad</strong></td>
+      <td><span class="pill pill-g">O(n·C) Lineal</span></td>
+      <td><span class="pill pill-r">O(gᵈ·C) Exponencial</span></td>
+    </tr>
+    <tr>
+      <td><strong>Control</strong></td>
+      <td>Eliges exactamente cuántos intentos (n)</td>
+      <td>El total depende de todos los parámetros</td>
+    </tr>
+    <tr>
+      <td><strong>Convergencia</strong></td>
+      <td>Probabilística — no garantiza óptimo absoluto</td>
+      <td>Exhaustiva — encuentra el mejor de la grilla</td>
+    </tr>
+    <tr>
+      <td><strong>Mejor para</strong></td>
+      <td><span class="pill pill-g">Muchos hiperparámetros</span> <span class="pill pill-g">Recursos limitados</span> <span class="pill pill-g">Alta dimensionalidad</span></td>
+      <td><span class="pill pill-g">≤3 hiperparámetros</span> <span class="pill pill-g">Precisión crítica</span></td>
+    </tr>
+    <tr>
+      <td><strong>Paralelizable</strong></td>
+      <td><span class="pill pill-g">✓ Fácil — cada muestra es independiente</span></td>
+      <td><span class="pill pill-g">✓ Posible, pero mayor overhead</span></td>
+    </tr>
+  </table>
+</section>
+
+<!-- ═══ 06 · BIG O LIVE ═══════════════════════════════════════════ -->
+<section id="s-cost" class="s-card fade-up">
+  <div class="s-num">06 · Big O en Tiempo Real</div>
+  <div class="s-title">Crecimiento del Costo Computacional</div>
+  <div class="s-desc">Ajusta los sliders para ver cómo escala el costo. El gráfico de la izquierda (Random) crece linealmente. El de la derecha (Grid) puede explotar exponencialmente.</div>
+  <div class="controls">
+    <span class="ctrl-label">Costo/modelo C (s):</span>
+    <input type="range" min="0.01" max="60" step=".5" value="5" id="cost_c" oninput="drawCosts()">
+    <span class="ctrl-val" id="cost_cv">5s</span>
+    <span class="ctrl-label" style="margin-left:.6rem;">Max n / g:</span>
+    <input type="range" min="5" max="200" value="50" id="cost_max" oninput="drawCosts()">
+    <span class="ctrl-val" id="cost_maxv">50</span>
+    <button class="btn btn-sm" onclick="drawCosts()">Actualizar</button>
+  </div>
+  <div class="split-canvases">
+    <div>
+      <div class="split-title" style="color:var(--orange);">RANDOM SEARCH — O(n·C)</div>
+      <canvas id="c-cost-rs" height="240"></canvas>
+    </div>
+    <div>
+      <div class="split-title" style="color:var(--accent);">GRID SEARCH — O(gᵈ·C)</div>
+      <canvas id="c-cost-gs" height="240"></canvas>
+    </div>
+  </div>
+  <div class="result-box" id="cost-result" style="margin-top:1rem;"></div>
+
+  <!-- Hardware recommender -->
+  <div style="margin-top:1.4rem;">
+    <div style="font-size:.85rem;color:var(--txt2);font-weight:600;margin-bottom:.5rem;letter-spacing:.04em;">HARDWARE RECOMENDADO PARA RANDOM SEARCH:</div>
+    <div class="hw-grid" id="hw-grid">
+      <div class="hw-card" id="hw-laptop"><span class="hw-icon">💻</span><span class="hw-label">Laptop</span></div>
+      <div class="hw-card" id="hw-pc"><span class="hw-icon">🖥️</span><span class="hw-label">PC 16GB</span></div>
+      <div class="hw-card" id="hw-ws"><span class="hw-icon">⚙️</span><span class="hw-label">Workstation</span></div>
+      <div class="hw-card" id="hw-gpu"><span class="hw-icon">🎮</span><span class="hw-label">GPU Server</span></div>
+      <div class="hw-card" id="hw-cloud"><span class="hw-icon">☁️</span><span class="hw-label">Cloud / HPC</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 07 · SANDBOX ══════════════════════════════════════════════ -->
+<section id="s-sandbox" class="s-card fade-up">
+  <div class="s-num">07 · Sandbox Interactivo</div>
+  <div class="s-title">Simula tu propio Random Search</div>
+  <div class="s-desc">Define el espacio de hiperparámetros y el presupuesto. El sandbox simula el proceso y muestra qué configuración habría ganado.</div>
+  <div class="sb-grid">
+    <div class="sb-param"><label>Rango de árboles (min - max)</label><div style="display:flex;gap:.5rem;"><input type="number" id="sb_tmin" value="50" min="1" max="500"><input type="number" id="sb_tmax" value="400" min="1" max="1000"></div></div>
+    <div class="sb-param"><label>Profundidad máx (min - max)</label><div style="display:flex;gap:.5rem;"><input type="number" id="sb_dmin" value="2" min="1" max="5"><input type="number" id="sb_dmax" value="12" min="2" max="30"></div></div>
+    <div class="sb-param"><label>Learning rate (min - max, ×0.01)</label><div style="display:flex;gap:.5rem;"><input type="number" id="sb_lmin" value="1" min="1" max="10"><input type="number" id="sb_lmax" value="30" min="1" max="100"></div></div>
+    <div class="sb-param"><label>Presupuesto n (muestras)</label><input type="number" id="sb_n" value="20" min="3" max="200"></div>
+    <div style="grid-column:1/-1;display:flex;gap:.7rem;align-items:center;">
+      <button class="btn" onclick="runSandbox()">▶ Ejecutar Simulación</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetSandbox()">↺ Reset</button>
+    </div>
+    <div class="sb-result" id="sb-result">Presiona Ejecutar para simular Random Search con tus parámetros.</div>
+    <div class="canvas-wrap" style="grid-column:1/-1;">
+      <canvas id="c-sandbox" height="220"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 08 · QUIZ ════════════════════════════════════════════════ -->
+<section id="s-quiz" class="s-card fade-up">
+  <div class="s-num">08 · Quiz Rápido</div>
+  <div class="s-title">Pon a prueba la audiencia</div>
+  <div id="quiz-container"></div>
+  <div class="quiz-score" id="quiz-score" style="display:none;"></div>
+  <button class="btn btn-green" onclick="resetQuiz()" style="margin-top:1rem;display:none;" id="quiz-reset-btn">↺ Reiniciar Quiz</button>
+</section>
+
+</div><!-- /container -->
+
+<div class="footer">
+  <div style="font-family:var(--mono);font-size:.75rem;margin-bottom:.3rem;color:var(--accent);">RANDOM SEARCH · CONFERENCIA DE MACHINE LEARNING</div>
+  Presentación interactiva · Todos los derechos reservados
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
 <script>
-/** 1. Dardos: grandes, con movimiento **/
-function showDarts(){
-  let c=document.getElementById("darts"); let ctx=c.getContext('2d');
-  ctx.clearRect(0,0,c.width,c.height);
-  // Fondo: espacio total (diana)
-  ctx.beginPath();
-  ctx.arc(260,125,92,0,2*Math.PI);
-  ctx.fillStyle="#e2e9ee"; ctx.fill();
-  ctx.lineWidth=9; ctx.strokeStyle="#FFD846"; ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(260,125,57,0,2*Math.PI);
-  ctx.lineWidth=4.5; ctx.strokeStyle="#afbbcd"; ctx.stroke();
-  // "Óptimo" - el centro verdadero
-  ctx.beginPath();
-  ctx.arc(260,125,15,0,2*Math.PI);
-  ctx.globalAlpha=.57;ctx.fillStyle="#1CB063"; ctx.fill();
-  ctx.globalAlpha=1;
-  // Dardos "al azar"
-  let n=9, darts=[];
-  for(let i=0;i<n;++i){
-    let ang=1.5+Math.random()*4.6;
-    let r=36+Math.random()*60;
-    let x=260+Math.cos(ang)*r, y=125+Math.sin(ang)*r;
-    darts.push({x,y});
-    setTimeout(()=>{ctx.beginPath();
-      ctx.arc(x,y,17,0,2*Math.PI);
-      ctx.fillStyle=(i===n-2)?"#FF7C37":"#3176ff";
-      ctx.globalAlpha=.94;ctx.fill();ctx.globalAlpha=1;
-      ctx.lineWidth=2.3;ctx.strokeStyle="#193460";ctx.stroke();
-      // Highlight arrow
-      if(i===n-2){
-        ctx.beginPath();
-        ctx.moveTo(x, y-22);ctx.lineTo(x, y-5);
-        ctx.strokeStyle="#FF7C37"; ctx.lineWidth=4.7;ctx.stroke();
-      }
-    },i*140+80);
-  }
-  // Etiquetas
-  ctx.font="1.5em Segoe UI";ctx.fillStyle="#184a8c";
-  ctx.fillText("Espacio de modelos",35,37);
-  ctx.font="bold 1.2em Segoe UI";ctx.fillStyle="#FF7C37";
-  ctx.fillText("Random Search",30,215);
-  ctx.font="1em Segoe UI";ctx.fillStyle="#1CB063";
-  ctx.fillText("Óptimo",336,140);
-  document.getElementById('dartsTxt').innerHTML=`
-    <b>Visual:</b><br>
-    El círculo dorado es el “universo” de todos los modelos posibles.<br>
-    Las esferas (dardos) son los intentos de Random Search (uno resaltado es el mejor hallado).<br>
-    <span style="color:#184a8c;">NUNCA se explora todo el universo, pero sí se cubren las zonas prometedoras.</span>
-  `;
+// ── UTILS ─────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const rnd = (a,b) => a + Math.random()*(b-a);
+const rndInt = (a,b) => Math.floor(rnd(a,b+1));
+
+function scrollTo(id){
+  const el = $(id);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-/** 2. Garage: gran grilla, autos “al azar” animados **/
-function showGarage(){
-  let can=document.getElementById("garage"); let ctx=can.getContext('2d');
-  ctx.clearRect(0,0,can.width,can.height);
-  // garage
-  let rows=4, cols=12, sel=[];
-  for(let j=0;j<rows;++j){
-    for(let i=0;i<cols;++i){
-      ctx.beginPath();
-      ctx.rect(25+i*49,25+j*32,40,30);
-      ctx.fillStyle="#e6ecf9";
-      ctx.fill();
-      ctx.lineWidth=1.7;ctx.strokeStyle="#b7b7b7";ctx.stroke();
-    }
-  }
-  // Elijo 7 randoms y el mejor:
-  while(sel.length<7){
-    let s=[Math.floor(Math.random()*cols),Math.floor(Math.random()*rows)];
-    if(!sel.some(([x,y])=>x===s[0]&&y===s[1])) sel.push(s);
-  }
-  // highlight
-  sel.forEach((s,idx)=>{
-    setTimeout(()=>{ctx.beginPath();
-      ctx.ellipse(45+s[0]*49,39+s[1]*32,19,12,0,0,2*Math.PI);
-      ctx.fillStyle= idx==6 ? "#FFD846":"#FF7C37";
-      ctx.globalAlpha= idx==6 ? 1 : .89;
-      ctx.fill();ctx.globalAlpha=1;
-      ctx.lineWidth=2.3;ctx.strokeStyle="#a8881a";ctx.stroke();
-      // draw trophy on "mejor"
-      if(idx==6){
-        ctx.font="1.87em Segoe UI"; ctx.fillStyle="#FFD846";
-        ctx.fillText("🏆",45+s[0]*49,70+s[1]*32);
-      }
-    },120*idx+160);
+function toggleTheme(){
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme', isDark?'light':'dark');
+  $('theme-toggle').textContent = isDark ? '🌙' : '☀️';
+  // redraw all canvases
+  setTimeout(()=>{ animDartsInit(); runCompare(); drawCosts(); }, 100);
+}
+
+// ── PROGRESS BAR + NAV ACTIVE ─────────────────────────────────────
+window.addEventListener('scroll', ()=>{
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  $('scrollProgress').style.width = (window.scrollY/h*100)+'%';
+  // nav active
+  const sections = ['s-intro','s-complexity','s-darts','s-steps','s-compare','s-cost','s-sandbox','s-quiz'];
+  let cur = 0;
+  sections.forEach((id,i)=>{
+    const el=$(id);
+    if(el && window.scrollY >= el.offsetTop - 120) cur = i;
   });
-  ctx.font="1.26em Segoe UI";ctx.fillStyle="#174a94";
-  ctx.fillText("Garage: todos modelos",45,32);
-  document.getElementById('garageTxt').innerHTML=`
-    <b>Visual:</b> En vez de explorar cada auto (combinación), Random Search prueba sólo unos pocos <span style="color:#FF7C37">naranjas</span>.<br>
-    El ganador óptimo se resalta en <span style="color:#FFD846">dorado</span> y 🏆.
-  `;
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===cur);
+  });
+});
+
+// ── CANVAS HELPERS ─────────────────────────────────────────────────
+function getCtx(id){
+  const c = $(id);
+  if(!c) return null;
+  c.width = c.offsetWidth || c.parentElement.offsetWidth || 600;
+  return {c, ctx:c.getContext('2d'), W:c.width, H:c.height};
 }
 
-/** 3. Secuencia paso-a-paso (animado/guiado, destacado en cada paso) **/
-let stepS=0;
-function showStepwise(){
-  let can=document.getElementById("stepWise"); let ctx=can.getContext('2d');
-  ctx.clearRect(0,0,can.width,can.height);
-  let N=9;
-  stepS = (stepS%4)+1;
-  // 1. Espacio
-  for(let i=0;i<N;++i){
-      ctx.beginPath();
-      ctx.arc(60+70*i,90,33,0,2*Math.PI);
-      ctx.fillStyle= (stepS==1)?"#fff1ca":"#dde2eb";
-      ctx.globalAlpha=1; ctx.fill();
-      ctx.lineWidth=3;ctx.strokeStyle=(stepS==1)?"#FFD846":"#aaa";ctx.stroke();
-      ctx.font="1.17em Segoe UI"; ctx.fillStyle="#af9007";
-      if(stepS==1) ctx.fillText(""+(i+1),60+70*i,140);
+function getColors(){
+  const s = getComputedStyle(document.documentElement);
+  return {
+    bg:    s.getPropertyValue('--bg3').trim(),
+    card:  s.getPropertyValue('--card').trim(),
+    border:s.getPropertyValue('--border').trim(),
+    txt:   s.getPropertyValue('--txt').trim(),
+    txt2:  s.getPropertyValue('--txt2').trim(),
+    orange:s.getPropertyValue('--orange').trim(),
+    accent:s.getPropertyValue('--accent').trim(),
+    green: s.getPropertyValue('--green').trim(),
+    gold:  s.getPropertyValue('--gold').trim(),
+    red:   s.getPropertyValue('--red').trim(),
+  };
+}
+
+function drawAxis(ctx, ox, oy, W, H, col, labelX='', labelY=''){
+  ctx.strokeStyle=col; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(W-20,oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox,H*.08); ctx.stroke();
+  ctx.fillStyle=col; ctx.font='11px Space Grotesk'; ctx.textAlign='center';
+  if(labelX) ctx.fillText(labelX,(ox+W-20)/2,oy+20);
+  ctx.save(); ctx.translate(ox-22,(oy+H*.08)/2); ctx.rotate(-Math.PI/2);
+  if(labelY) ctx.fillText(labelY,0,0);
+  ctx.restore();
+}
+
+// ══ 03 DARTS ══════════════════════════════════════════════════════
+let dartsPoints=[], dartsGridPts=[], optX=0, optY=0, dartsAnim=null;
+
+function dartUpdate(){
+  $('darts_nv').textContent = $('darts_n').value;
+}
+
+function clearDarts(){
+  dartsPoints=[]; dartsGridPts=[];
+  if(dartsAnim) clearInterval(dartsAnim);
+  animDartsInit();
+  $('darts-result').innerHTML='Lienzo limpio. Vuelve a animar.';
+}
+
+function animDartsInit(){
+  const {c,ctx,W,H} = getCtx('c-darts');
+  const col = getColors();
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle = col.card; ctx.fillRect(0,0,W,H);
+  // grid dots
+  for(let x=40;x<W-20;x+=40) for(let y=30;y<H-20;y+=40){
+    ctx.beginPath(); ctx.arc(x,y,1.5,0,2*Math.PI);
+    ctx.fillStyle=col.border; ctx.fill();
   }
-  if(stepS>=2){
-    for(let i=0;i<4;++i){
-      let idx=1+2*i+Math.round(Math.random()*1);
-      ctx.beginPath();
-      ctx.arc(60+70*idx,90,33,0,2*Math.PI);
-      ctx.fillStyle="#FF7C37";ctx.globalAlpha=0.99;ctx.fill();
-      ctx.lineWidth=3;ctx.strokeStyle="#c35421";ctx.stroke();
-      ctx.font="bold 1.17em Segoe UI";ctx.fillStyle="#fff";
-      ctx.fillText("?",60+70*idx,95);
-      // animar flecha
-      if(i==2){
-        ctx.beginPath();
-        ctx.moveTo(60+70*idx,55); ctx.lineTo(60+70*idx,27);ctx.lineWidth=3;ctx.strokeStyle="#FF7C37";ctx.stroke();
-        ctx.font="bold 1.25em Segoe UI"; ctx.fillStyle="#FF7C37";
-        ctx.fillText("Test",60+70*idx,21);
+  // target rings
+  const cx=W/2, cy=H/2+10;
+  optX=cx+rnd(-50,50); optY=cy+rnd(-45,45);
+  [100,72,50,30,14].forEach((r,i)=>{
+    ctx.beginPath(); ctx.arc(cx,cy,r*(W/520),0,2*Math.PI);
+    ctx.strokeStyle = i===0 ? col.border : col.border;
+    ctx.lineWidth = i===0?2:1;
+    ctx.setLineDash([i>0?4:0,i>0?3:0]);
+    ctx.stroke(); ctx.setLineDash([]);
+  });
+  // optimal
+  ctx.beginPath(); ctx.arc(optX,optY,10*(W/520),0,2*Math.PI);
+  ctx.fillStyle=col.green+'55'; ctx.fill();
+  ctx.beginPath(); ctx.arc(optX,optY,5*(W/520),0,2*Math.PI);
+  ctx.fillStyle=col.green; ctx.fill();
+  ctx.fillStyle=col.green; ctx.font='bold 11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillText('θ* óptimo', optX+12*(W/520), optY+4);
+  // label
+  ctx.fillStyle=col.txt2; ctx.font='12px Space Grotesk'; ctx.textAlign='center';
+  ctx.fillText('Espacio de hiperparámetros Θ', W/2, 18);
+}
+
+function animDarts(){
+  animDartsInit();
+  const n = +$('darts_n').value;
+  const {c,ctx,W,H} = getCtx('c-darts');
+  const col = getColors();
+  const cx=W/2, cy=H/2+10, R=100*(W/520);
+  dartsPoints=[];
+  for(let i=0;i<n;i++){
+    const ang=rnd(0,2*Math.PI), r=rnd(5,R*1.05);
+    dartsPoints.push({x:cx+Math.cos(ang)*r, y:cy+Math.sin(ang)*r, score:rnd(.55,.98)});
+  }
+  let bestIdx=dartsPoints.reduce((b,p,i)=>p.score>dartsPoints[b].score?i:b,0);
+  let i=0;
+  animDartsInit();
+  dartsAnim = setInterval(()=>{
+    if(i>=n){clearInterval(dartsAnim);
+      // draw best highlight
+      const p=dartsPoints[bestIdx];
+      ctx.beginPath(); ctx.arc(p.x,p.y,14*(W/520),0,2*Math.PI);
+      ctx.strokeStyle=col.gold; ctx.lineWidth=3; ctx.stroke();
+      ctx.fillStyle=col.gold; ctx.font='bold 11px JetBrains Mono';
+      ctx.textAlign='left'; ctx.fillText('Mejor: '+p.score.toFixed(3),p.x+16,p.y+4);
+      const dist=Math.sqrt((p.x-optX)**2+(p.y-optY)**2);
+      $('darts-result').innerHTML=`<b>Resultado RS (n=${n}):</b> Mejor accuracy encontrado = <b style="color:var(--green)">${p.score.toFixed(4)}</b> | Distancia al óptimo real: <b>${dist.toFixed(1)}px equiv.</b><br>Random Search exploró <b>${n}</b> de ~∞ combinaciones posibles.`;
+      return;
+    }
+    const p=dartsPoints[i];
+    ctx.beginPath(); ctx.arc(p.x,p.y,9*(W/520),0,2*Math.PI);
+    ctx.fillStyle=col.orange+'cc'; ctx.fill();
+    ctx.fillStyle=col.orange+'44'; ctx.lineWidth=2; ctx.strokeStyle=col.orange; ctx.stroke();
+    ctx.fillStyle=col.txt2; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText((i+1),p.x,p.y+4);
+    i++;
+  },90);
+}
+
+function animGrid(){
+  animDartsInit();
+  const {c,ctx,W,H} = getCtx('c-darts');
+  const col = getColors();
+  const g = +$('cmp_gs').value || 5;
+  dartsGridPts=[];
+  const ox=W*.1, oy=H*.85, rw=W*.8, rh=H*.72;
+  let i=0;
+  const pts=[];
+  for(let gx=0;gx<g;gx++) for(let gy=0;gy<g;gy++){
+    pts.push({x:ox+gx*rw/(g-1), y:oy-gy*rh/(g-1)});
+  }
+  dartsAnim=setInterval(()=>{
+    if(i>=pts.length){clearInterval(dartsAnim);
+      $('darts-result').innerHTML=`<b>Grid Search (g=${g}, d=2):</b> Evaluó <b style="color:var(--accent)">${g*g} combinaciones</b> en cuadrícula uniforme. RS con n=${$('darts_n').value} usaría solo <b>${$('darts_n').value}</b> evaluaciones.`;
+      return;
+    }
+    const p=pts[i];
+    ctx.beginPath(); ctx.arc(p.x,p.y,7*(W/520),0,2*Math.PI);
+    ctx.fillStyle=col.accent+'99'; ctx.fill();
+    ctx.strokeStyle=col.accent; ctx.lineWidth=1.2; ctx.stroke();
+    i++;
+  },40);
+}
+
+// ══ 04 STEPS ══════════════════════════════════════════════════════
+let currentStep = -1;
+const stepData = [
+  {
+    title:'Paso 1: Definir el Espacio de Búsqueda',
+    desc:`<b>Definimos los rangos posibles</b> de cada hiperparámetro. Ej: n_estimators ∈ [50,500], max_depth ∈ [2,15], lr ∈ [0.001,0.3]. Este "cajón" es de donde muestrearemos — nunca exploraremos todo.`,
+    draw(ctx,W,H,col){
+      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
+      const params=[['n_estimators','50 ─────────── 500'],['max_depth','2 ─────── 15'],['learning_rate','0.001 ──── 0.3']];
+      params.forEach(([name,range],i)=>{
+        const y=45+i*52, barW=W*.5;
+        ctx.fillStyle=col.card2||'#1c2840'; ctx.roundRect(W*.18,y-18,barW,32,6); ctx.fill();
+        ctx.fillStyle=col.txt2; ctx.font='12px Space Grotesk'; ctx.textAlign='right';
+        ctx.fillText(name, W*.17,y+1);
+        ctx.fillStyle=col.accent+'55'; ctx.fillRect(W*.19,y-10,barW-10,16);
+        ctx.fillStyle=col.accent; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+        ctx.fillText(range, W*.18+barW/2, y+2);
+      });
+      ctx.fillStyle=col.gold; ctx.font='bold 13px Space Grotesk'; ctx.textAlign='center';
+      ctx.fillText('Θ = Espacio de búsqueda definido ✓', W/2, H-18);
+    }
+  },
+  {
+    title:'Paso 2: Muestrear Aleatoriamente',
+    desc:`<b>Se toman n muestras aleatorias</b> de forma uniforme del espacio Θ. Cada muestra es un vector de hiperparámetros θᵢ = (n_est=230, depth=7, lr=0.08). Esto es <b>muestreo sin reposición</b> en el espacio continuo.`,
+    draw(ctx,W,H,col){
+      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
+      const n=8;
+      for(let i=0;i<n;i++){
+        const x=W*.1+rnd(0,W*.8), y=30+rnd(0,H-60);
+        ctx.beginPath(); ctx.arc(x,y,11,0,2*Math.PI);
+        ctx.fillStyle=col.orange; ctx.globalAlpha=.85; ctx.fill(); ctx.globalAlpha=1;
+        ctx.fillStyle='#000'; ctx.font='bold 10px JetBrains Mono'; ctx.textAlign='center';
+        ctx.fillText('θ'+(i+1),x,y+4);
       }
+      ctx.fillStyle=col.orange; ctx.font='bold 13px Space Grotesk'; ctx.textAlign='center';
+      ctx.fillText(`${n} configuraciones muestreadas aleatoriamente`, W/2, H-12);
+    }
+  },
+  {
+    title:'Paso 3: Evaluar cada configuración',
+    desc:`Para cada θᵢ muestreado: <b>entrenar el modelo</b> con esos hiperparámetros, luego <b>evaluar</b> con cross-validation. Se obtiene una métrica (accuracy, AUC, F1...). Costo = <b>n × C</b> en total.`,
+    draw(ctx,W,H,col){
+      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
+      const n=6, scores=[0.71,0.88,0.65,0.93,0.77,0.82];
+      scores.forEach((s,i)=>{
+        const x=W*.08+i*(W*.84/(n-1)), bH=(H-60)*s, y=H-35-bH;
+        const g=ctx.createLinearGradient(x,y,x,H-35);
+        g.addColorStop(0,s===Math.max(...scores)?col.green:col.orange);
+        g.addColorStop(1,(s===Math.max(...scores)?col.green:col.orange)+'44');
+        ctx.fillStyle=g; ctx.roundRect(x-14,y,28,bH,4); ctx.fill();
+        ctx.fillStyle=col.txt2; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+        ctx.fillText('θ'+(i+1),x,H-18);
+        ctx.fillStyle=col.txt; ctx.font='bold 11px JetBrains Mono';
+        ctx.fillText(s.toFixed(2),x,y-6);
+      });
+      ctx.fillStyle=col.green; ctx.font='bold 13px Space Grotesk'; ctx.textAlign='center';
+      ctx.fillText('Métrica evaluada para cada θᵢ', W/2, 14);
+    }
+  },
+  {
+    title:'Paso 4: Seleccionar la mejor configuración',
+    desc:`Se elige <b>θ* = argmax score(θᵢ)</b>. Esa configuración ganadora se usa para el modelo final. <b>Fin del algoritmo</b>. Opcional: repetir con más muestras si el presupuesto lo permite.`,
+    draw(ctx,W,H,col){
+      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
+      const cx=W/2, cy=H/2-10;
+      ctx.beginPath(); ctx.arc(cx,cy,52,0,2*Math.PI);
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,52);
+      g.addColorStop(0,col.green+'88'); g.addColorStop(1,col.green+'11');
+      ctx.fillStyle=g; ctx.fill();
+      ctx.strokeStyle=col.green; ctx.lineWidth=3; ctx.stroke();
+      ctx.fillStyle=col.green; ctx.font='bold 22px Space Grotesk'; ctx.textAlign='center';
+      ctx.fillText('θ* elegido',cx,cy+8);
+      ctx.fillStyle=col.txt2; ctx.font='13px Space Grotesk'; ctx.textAlign='center';
+      ctx.fillText('argmax  score(θᵢ)',cx,cy+32);
+      ctx.fillStyle=col.gold; ctx.font='bold 14px Space Grotesk';
+      ctx.fillText('🏆 Mejor configuración → Modelo Final', W/2, H-16);
     }
   }
-  if(stepS>=3){
-    let idx=2*Math.floor(N/3)+1;
+];
+
+function goStep(i){
+  currentStep=i;
+  document.querySelectorAll('[id^=sbtn]').forEach((b,j)=>{
+    b.style.background = j===i ? 'var(--accent)' : '';
+    b.style.color = j===i ? '#fff' : '';
+    b.style.borderColor = j===i ? 'var(--accent)' : '';
+  });
+  const {c,ctx,W,H} = getCtx('c-steps');
+  const col = getColors();
+  ctx.clearRect(0,0,W,H);
+  stepData[i].draw(ctx,W,H,col);
+  $('steps-result').innerHTML = `<b style="color:var(--accent)">${stepData[i].title}</b><br>${stepData[i].desc}`;
+}
+
+let autoInt=null;
+function autoSteps(){
+  if(autoInt) clearInterval(autoInt);
+  let s=0; goStep(s);
+  autoInt=setInterval(()=>{ s=(s+1)%4; goStep(s); if(s===3&&autoInt){setTimeout(()=>clearInterval(autoInt),1500);} },2200);
+}
+
+// ══ 05 COMPARE ════════════════════════════════════════════════════
+function runCompare(){
+  const nRS=+$('cmp_rs').value, gGS=+$('cmp_gs').value;
+  $('cmp_rsv').textContent=nRS; $('cmp_gsv').textContent=gGS;
+  const col=getColors();
+  // RS canvas
+  (()=>{
+    const {c,ctx,W,H}=getCtx('c-rs');
+    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
+    const pts=[];
+    for(let i=0;i<nRS;i++) pts.push({x:rnd(.05,.95)*W, y:rnd(.08,.88)*H, s:rnd(.6,.97)});
+    const best=pts.reduce((b,p)=>p.s>b.s?p:b,pts[0]);
+    pts.forEach(p=>{
+      ctx.beginPath(); ctx.arc(p.x,p.y,9,0,2*Math.PI);
+      ctx.fillStyle=col.orange+(p===best?'':'99'); ctx.fill();
+      if(p===best){ctx.strokeStyle=col.gold;ctx.lineWidth=3;ctx.stroke();}
+    });
+    ctx.fillStyle=col.txt2; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText(`n = ${nRS} evaluaciones`, W/2, H-8);
+  })();
+  // GS canvas
+  (()=>{
+    const {c,ctx,W,H}=getCtx('c-gs');
+    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
+    const total=gGS*gGS, ox=W*.07, oy=H*.07, rw=W*.86, rh=H*.8;
+    for(let gx=0;gx<gGS;gx++) for(let gy=0;gy<gGS;gy++){
+      ctx.beginPath();
+      ctx.arc(ox+gx*rw/(gGS-1), oy+gy*rh/(gGS-1), 7, 0, 2*Math.PI);
+      ctx.fillStyle=col.accent+'77'; ctx.fill();
+    }
+    ctx.fillStyle=col.txt2; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText(`g²=${gGS}²=${total} evaluaciones`, W/2, H-8);
+    if(total>100){ctx.fillStyle=col.red;ctx.font='bold 11px Space Grotesk';ctx.fillText('⚠ Explosión combinatoria',W/2,H*.08);}
+  })();
+  const totalGS=gGS*gGS;
+  const savings=Math.max(0,(1-nRS/totalGS)*100).toFixed(1);
+  $('cmp-result').innerHTML=`<b>Random Search:</b> <span style="color:var(--orange)">${nRS}</span> evaluaciones &nbsp;|&nbsp; <b>Grid Search (d=2):</b> <span style="color:var(--accent)">${totalGS}</span> evaluaciones<br><b style="color:var(--green)">Ahorro: ${savings}% menos evaluaciones con Random Search</b> para dimensión 2. Con d=5: Grid necesitaría <b>${Math.pow(gGS,5).toLocaleString()}</b> evaluaciones.`;
+}
+
+// ══ 06 COSTS ══════════════════════════════════════════════════════
+function drawCosts(){
+  const C=+$('cost_c').value, maxN=+$('cost_max').value;
+  $('cost_cv').textContent=C+'s'; $('cost_maxv').textContent=maxN;
+  const col=getColors();
+  // RS — linear
+  (()=>{
+    const {c,ctx,W,H}=getCtx('c-cost-rs');
+    const ox=45, oy=H-35, rw=W-65, rh=H-55;
+    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
+    drawAxis(ctx,ox,oy,W,H,col.txt2,'n (muestras)','Tiempo');
+    ctx.strokeStyle=col.orange; ctx.lineWidth=3; ctx.beginPath();
+    for(let n=0;n<=maxN;n++){
+      const x=ox+n*rw/maxN, y=oy-Math.min((C*n/600)*rh,rh*.95);
+      n===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    } ctx.stroke();
+    // shading
     ctx.beginPath();
-    ctx.arc(60+70*idx,90,33,0,2*Math.PI);
-    ctx.fillStyle="#1CB063"; ctx.globalAlpha=1.0;ctx.fill();
-    ctx.lineWidth=4.6;ctx.strokeStyle="#247437";ctx.stroke();
-    ctx.font="bold 1.17em Segoe UI";ctx.fillStyle="#fff";
-    ctx.fillText("✓",60+70*idx,93);
-    // Trofeo
-    ctx.font="2.3em Segoe UI";
-    ctx.fillText("🏆",60+70*idx,170);
-  }
-  // Leyenda + texto
-  let txs=[
-    "<b>1:</b> Definir espacio de todas las posibles configuraciones (cada círculo es una posibilidad).",
-    "<b>2:</b> Random Search marca varias opciones al azar y las prueba.",
-    "<b>3:</b> Evalúa rendimiento y encuentra la mejor (“la campeona”).",
-    "<b>4:</b> Selecciona la mejor y ¡termina la búsqueda!"
-  ];
-  document.getElementById('stepWiseTxt').innerHTML=txs[stepS-1];
+    for(let n=0;n<=maxN;n++){const x=ox+n*rw/maxN,y=oy-Math.min((C*n/600)*rh,rh*.95);n===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+    ctx.lineTo(ox+maxN*rw/maxN,oy); ctx.lineTo(ox,oy); ctx.closePath();
+    ctx.fillStyle=col.orange+'22'; ctx.fill();
+    ctx.fillStyle=col.orange; ctx.font='bold 13px JetBrains Mono'; ctx.textAlign='right';
+    ctx.fillText('O(n·C)', W-8, 22);
+    // label total
+    const total=(C*maxN).toFixed(1);
+    ctx.fillStyle=col.txt2; ctx.font='11px Space Grotesk'; ctx.textAlign='center';
+    ctx.fillText(`n=${maxN} → ${total}s total`, W/2, H-6);
+  })();
+  // GS — quadratic
+  (()=>{
+    const {c,ctx,W,H}=getCtx('c-cost-gs');
+    const ox=45, oy=H-35, rw=W-65, rh=H-55;
+    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
+    drawAxis(ctx,ox,oy,W,H,col.txt2,'g (vals/param)','Tiempo');
+    const maxG=Math.min(maxN,50);
+    ctx.strokeStyle=col.accent; ctx.lineWidth=3; ctx.beginPath();
+    for(let g=0;g<=maxG;g++){
+      const x=ox+g*rw/maxG, cost=C*g*g, y=oy-Math.min((cost/(C*maxG*maxG))*rh,rh*.95);
+      g===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    } ctx.stroke();
+    ctx.beginPath();
+    for(let g=0;g<=maxG;g++){const x=ox+g*rw/maxG,y=oy-Math.min((C*g*g/(C*maxG*maxG))*rh,rh*.95);g===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+    ctx.lineTo(ox+maxG*rw/maxG,oy); ctx.lineTo(ox,oy); ctx.closePath();
+    ctx.fillStyle=col.accent+'22'; ctx.fill();
+    ctx.fillStyle=col.accent; ctx.font='bold 13px JetBrains Mono'; ctx.textAlign='right';
+    ctx.fillText('O(g²·C)', W-8, 22);
+    const total=(C*maxG*maxG).toFixed(1);
+    ctx.fillStyle=col.txt2; ctx.font='11px Space Grotesk'; ctx.textAlign='center';
+    ctx.fillText(`g=${maxG}, d=2 → ${total}s total`, W/2, H-6);
+  })();
+  // hardware recommender
+  const totalRS=C*maxN;
+  const ids=['hw-laptop','hw-pc','hw-ws','hw-gpu','hw-cloud'];
+  ids.forEach(id=>$(id).className='hw-card');
+  let target='hw-laptop', warn=false;
+  if(totalRS<120){ target='hw-laptop'; }
+  else if(totalRS<1800){ target='hw-pc'; }
+  else if(totalRS<7200){ target='hw-ws'; }
+  else if(totalRS<72000){ target='hw-gpu'; warn=totalRS>36000; }
+  else { target='hw-cloud'; warn=true; }
+  const card=$(target);
+  card.classList.add('active'); if(warn) card.classList.add('warn');
+  const mins=(totalRS/60).toFixed(1), hrs=(totalRS/3600).toFixed(2);
+  $('cost-result').innerHTML=`<b>Random Search:</b> n=${maxN} × C=${C}s = <b style="color:var(--orange)">${totalRS.toFixed(0)}s ≈ ${mins} min ≈ ${hrs} h</b><br>
+<b>Grid Search (d=2, g=${Math.min(maxN,50)}):</b> ${Math.min(maxN,50)}² × C=${C}s = <b style="color:var(--accent)">${(C*Math.pow(Math.min(maxN,50),2)).toFixed(0)}s</b><br>
+<span style="color:var(--txt2);font-size:.85em;">Hardware recomendado para RS resaltado abajo.</span>`;
 }
 
-/** 4. Árbol binario gran tamaño, animado **/
-function drawTree(){
-  let can=document.getElementById("tree"); let ctx=can.getContext('2d');
-  ctx.clearRect(0,0,can.width,can.height);
-  let depth = 3 + Math.floor(Math.random()*2.4); 
-  let nodes = [];
-  function layout(x,y,dep,dx){
-    if(dep>depth) return;
-    nodes.push({x,y,dep});
-    if(dep<depth){
-      layout(x-dx,y+50,dep+1,dx/1.7);
-      layout(x+dx,y+50,dep+1,dx/1.7);
-    }
+// ══ 07 SANDBOX ════════════════════════════════════════════════════
+let sbAnim=null;
+function runSandbox(){
+  const tMin=+$('sb_tmin').value, tMax=+$('sb_tmax').value;
+  const dMin=+$('sb_dmin').value, dMax=+$('sb_dmax').value;
+  const lMin=+$('sb_lmin').value/100, lMax=+$('sb_lmax').value/100;
+  const n=+$('sb_n').value;
+  const samples=[];
+  for(let i=0;i<n;i++){
+    const t=rndInt(tMin,tMax), d=rndInt(dMin,dMax), l=rnd(lMin,lMax);
+    const score=0.55+0.36*(1-Math.exp(-t/200))+0.05*(d-dMin)/(dMax-dMin+1)+0.03*Math.random()-0.02*(l-lMin)/(lMax-lMin+1);
+    samples.push({t,d,l:l.toFixed(4),score:Math.min(.995,score)});
   }
-  layout(285,48,1,112);
-  // edges
-  ctx.strokeStyle="#afcbfa"; ctx.lineWidth=2.55;
-  nodes.forEach(n=>{ if(n.dep<depth){
-    let ch=nodes.filter(nn=>nn.dep===n.dep+1 && Math.abs(nn.x-n.x)<120 && Math.abs(nn.y-n.y)<71);
-    for(let c of ch){ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(c.x,c.y);ctx.stroke();}
-  }});
-  // nodes y animaciones
-  nodes.forEach((n,ii)=>{
-    setTimeout(()=>{
-      ctx.beginPath();
-      ctx.arc(n.x,n.y,22,0,2*Math.PI);
-      ctx.fillStyle= n.dep===1 ? "#FFE18C" : (n.dep==depth ? "#DCF1FC" :"#FFF");
-      ctx.strokeStyle= n.dep===1 ? "#FFD846" : "#2186e7";
-      ctx.lineWidth= n.dep===1 ? 4 : 1.74;
-      ctx.fill();ctx.stroke();
-      ctx.font="bold 1.17em Segoe UI";
-      ctx.fillStyle=(n.dep===1)?"#7b4d00":"#2a3361";
-      ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.fillText(n.dep, n.x, n.y);
-      if(n.dep==depth){
-        ctx.font="1.15em Segoe UI";
-        ctx.fillStyle="#4676b3";
-        ctx.fillText("Fallo",n.x,n.y+27);
-      }
-    },ii*55+50);
+  const best=samples.reduce((b,s)=>s.score>b.score?s:b,samples[0]);
+  $('sb-result').innerHTML=`
+<span style="color:var(--green)">▶ Simulación completada (n=${n} muestras)</span>
+Mejor configuración encontrada:
+  <span style="color:var(--gold)">n_estimators = ${best.t}</span>  |  <span style="color:var(--orange)">max_depth = ${best.d}</span>  |  <span style="color:var(--accent)">learning_rate = ${best.l}</span>
+  Score → <strong style="color:var(--green)">${best.score.toFixed(5)}</strong>
+  
+Costo estimado: ${n} evaluaciones × ~5s/modelo = <b>${(n*5).toFixed(0)}s</b>
+Grid equivalente (3 params, g=6): 6³ = <b>216 evaluaciones</b> vs tus <b>${n}</b>`;
+  // draw scatter
+  const {c,ctx,W,H}=getCtx('c-sandbox');
+  const col=getColors();
+  ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
+  const ox=45, oy=H-30, rw=W-60, rh=H-50;
+  drawAxis(ctx,ox,oy,W,H,col.txt2,'n_estimators','Score');
+  // ticks
+  ctx.fillStyle=col.txt2; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+  [tMin, Math.round((tMin+tMax)/2), tMax].forEach(v=>{
+    const x=ox+(v-tMin)*rw/(tMax-tMin||1);
+    ctx.fillText(v,x,oy+16);
   });
-  ctx.font="1.26em Segoe UI";ctx.fillStyle="#edad22";
-  ctx.fillText("Raíz",285,30);
-  ctx.fillStyle="#2186e7";
-  ctx.font="1.11em Segoe UI";
-  ctx.fillText(`Profundidad ${depth}`,420,30);
-  document.getElementById('treeTxt').innerHTML=`
-    <b>Visual:</b><br>Árbol binario generado por alguna configuración random.<br>
-    La raíz hace la pregunta más general; a medida que baja, cada nodo toma decisiones especializadas.<br>
-    Las hojas (“Fallo”) deciden la predicción final.
-  `;
+  samples.forEach(s=>{
+    const x=ox+(s.t-tMin)*rw/(tMax-tMin||1);
+    const y=oy-(s.score-.5)*rh/.5;
+    ctx.beginPath(); ctx.arc(x,Math.max(10,Math.min(oy,y)),s===best?10:5,0,2*Math.PI);
+    ctx.fillStyle=s===best?col.green:col.orange+'99'; ctx.fill();
+    if(s===best){ctx.strokeStyle=col.gold;ctx.lineWidth=2.5;ctx.stroke();}
+  });
+  ctx.fillStyle=col.green; ctx.font='bold 11px Space Grotesk'; ctx.textAlign='left';
+  const bx=ox+(best.t-tMin)*rw/(tMax-tMin||1);
+  const by=oy-(best.score-.5)*rh/.5;
+  ctx.fillText('★ Mejor: '+best.score.toFixed(4), bx+12, by+4);
 }
 
-/** 5. Comparativa random vs grid, en grande y con leyenda **/
-function simulateSearch() {
-  let k = +document.getElementById('tries').value;
-  let ng = +document.getElementById('resGrid').value;
-  let treesMin=50, treesMax=250, depthMin=2, depthMax=11;
-  let combos = [];
-  let xs=[...Array(ng)].map((_,i)=>Math.round(treesMin + i*(treesMax-treesMin)/(ng-1)));
-  let ys=[...Array(ng)].map((_,i)=>Math.round(depthMin + i*(depthMax-depthMin)/(ng-1)));
-  for(let x of xs){ for(let y of ys){ combos.push([x,y]); } }
-  let randoms = [];
-  for(let i=0;i<k;++i){
-    let x=treesMin+Math.round(Math.random()*(treesMax-treesMin));
-    let y=depthMin+Math.round(Math.random()*(depthMax-depthMin));
-    randoms.push([x,y]);
-  }
-  let scores = randoms.map(([x,y]) =>
-      0.7 + 0.29*(1-Math.exp(-x/120)) + 0.085*Math.random() + .04*(y-2)/10
-  );
-  let idxBest = scores.indexOf(Math.max(...scores));
-  let canvas = document.getElementById('scatter');let ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  // grid
-  for(let [x,y] of combos){
-    let px=65+(x-treesMin)/200*440, py=300-(y-depthMin)/9*215;
-    ctx.beginPath();ctx.arc(px,py,7,0,2*Math.PI);
-    ctx.fillStyle="#bbc5e2"; ctx.globalAlpha=.33;ctx.fill();ctx.globalAlpha=1.0;
-  }
-  // randoms
-  for(let i=0;i<randoms.length;++i){
-    let [x,y]=randoms[i];
-    let px=65+(x-treesMin)/200*440, py=300-(y-depthMin)/9*215;
-    ctx.beginPath();ctx.arc(px,py,19,0,2*Math.PI);
-    ctx.fillStyle=(i===idxBest)?"#1CB063":"#FF7C37";
-    ctx.globalAlpha=(i===idxBest)?1:.92;
-    ctx.fill();ctx.globalAlpha=1.0;
-    ctx.strokeStyle="#173a60";
-    ctx.lineWidth=(i===idxBest)?3.9:1.7;
-    ctx.stroke();
-    ctx.font="1em Segoe UI";
-    if(i===idxBest){
-      ctx.fillStyle="#1CB063";
-      ctx.font="1.49em Segoe UI";
-      ctx.fillText("✓",px,py+6);
-    }
-  }
-  // Ejes
-  ctx.strokeStyle="#374768";ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(54,301);ctx.lineTo(590,301);ctx.lineTo(590,48);ctx.stroke();
-  // leyendas
-  ctx.font="1.23em Segoe UI";ctx.fillStyle="#173a60";
-  ctx.fillText("Árboles",280,319);
-  ctx.save();ctx.translate(33,186);ctx.rotate(-Math.PI/2);ctx.fillText("Profundidad",0,0);ctx.restore();
-  document.getElementById('scatterTxt').innerHTML=`
-    <b>Visual:</b> <span style="color:#bbc5e2;">Gris</span> = todas combinaciones posibles (Grid Search).<br>
-    <span style="color:#FF7C37;">Naranja</span> = intentos Random Search.<br>
-    <span style="color:#1CB063;">Verde</span> = mejor encontrado.<br>
-    <b>Random Search prueba menos intentos pero puede lograr óptimos igual de buenos.</b>`;
+function resetSandbox(){
+  $('sb_tmin').value=50; $('sb_tmax').value=400;
+  $('sb_dmin').value=2; $('sb_dmax').value=12;
+  $('sb_lmin').value=1; $('sb_lmax').value=30;
+  $('sb_n').value=20;
+  $('sb-result').innerHTML='Presiona Ejecutar para simular Random Search con tus parámetros.';
+  const {c,ctx,W,H}=getCtx('c-sandbox');
+  ctx.clearRect(0,0,W,H);
 }
+
+// ══ 08 QUIZ ════════════════════════════════════════════════════════
+const QUIZ = [
+  {
+    q:'¿Cuál es la complejidad de Random Search?',
+    opts:['O(gᵈ · C)','O(n · C)','O(n²)','O(log n)'],
+    ans:1,
+    exp:'O(n·C) donde n=muestras y C=costo de evaluar un modelo. Es lineal en n.'
+  },
+  {
+    q:'Tienes 5 hiperparámetros y 6 valores posibles cada uno. ¿Cuántas evaluaciones hace Grid Search?',
+    opts:['30','1,296','7,776','600'],
+    ans:2,
+    exp:'6⁵ = 7,776. Grid Search es exponencial en d (dimensiones): O(gᵈ).'
+  },
+  {
+    q:'¿Cuándo es mejor usar Grid Search en lugar de Random Search?',
+    opts:['Muchos hiperparámetros, recursos limitados','Pocos hiperparámetros y precisión crítica','Modelos muy complejos','Nunca, RS siempre es mejor'],
+    ans:1,
+    exp:'Grid Search es preferible con ≤3 hiperparámetros cuando el espacio es pequeño y necesitas garantía del óptimo de la grilla.'
+  },
+  {
+    q:'¿Qué representa la variable "C" en O(n × C)?',
+    opts:['Número de clases','Costo de entrenar y evaluar UN modelo','Capacidad de memoria RAM','Cantidad de datos de entrenamiento'],
+    ans:1,
+    exp:'C es el costo computacional de entrenar un modelo con una configuración y calcular su métrica (cross-validation incluida).'
+  },
+  {
+    q:'Si doblas n en Random Search, ¿qué pasa con el tiempo total?',
+    opts:['Se cuadruplica','Se mantiene igual','Se duplica','Depende de gᵈ'],
+    ans:2,
+    exp:'Como la complejidad es O(n·C) y C es constante, doblar n duplica exactamente el tiempo. Comportamiento lineal y predecible.'
+  }
+];
+
+let quizAnswers=[], quizDone=false;
+function renderQuiz(){
+  const container=$('quiz-container');
+  container.innerHTML='';
+  QUIZ.forEach((q,qi)=>{
+    const div=document.createElement('div');
+    div.style.cssText='margin-bottom:1.6rem;';
+    div.innerHTML=`<div class="quiz-q">${qi+1}. ${q.q}</div>
+      <div class="quiz-opts" id="qopts-${qi}">
+        ${q.opts.map((o,oi)=>`<button class="quiz-opt" onclick="answerQuiz(${qi},${oi})" id="qopt-${qi}-${oi}">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb-${qi}"></div>`;
+    container.appendChild(div);
+  });
+}
+
+function answerQuiz(qi,oi){
+  if(quizAnswers[qi]!==undefined) return;
+  quizAnswers[qi]=oi;
+  const q=QUIZ[qi];
+  $(`qopt-${qi}-${oi}`).classList.add(oi===q.ans?'correct':'wrong');
+  if(oi!==q.ans) $(`qopt-${qi}-${q.ans}`).classList.add('correct');
+  document.querySelectorAll(`#qopts-${qi} .quiz-opt`).forEach(b=>b.style.pointerEvents='none');
+  $(`qfb-${qi}`).innerHTML=(oi===q.ans?'✅ ':'❌ ')+q.exp;
+  if(quizAnswers.filter(a=>a!==undefined).length===QUIZ.length) showScore();
+}
+
+function showScore(){
+  const correct=quizAnswers.filter((a,i)=>a===QUIZ[i].ans).length;
+  $('quiz-score').style.display='block';
+  $('quiz-score').innerHTML=`Puntuación final: ${correct}/${QUIZ.length} — ${correct===QUIZ.length?'🎯 ¡Perfecto!':correct>=3?'👍 Muy bien':'💡 Sigue aprendiendo'}`;
+  $('quiz-reset-btn').style.display='inline-flex';
+}
+
+function resetQuiz(){
+  quizAnswers=[]; quizDone=false;
+  $('quiz-score').style.display='none';
+  $('quiz-reset-btn').style.display='none';
+  renderQuiz();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+window.addEventListener('load', ()=>{
+  // small delay to let layout settle
+  setTimeout(()=>{
+    animDartsInit();
+    goStep(0);
+    runCompare();
+    drawCosts();
+    renderQuiz();
+  }, 150);
+});
+
+window.addEventListener('resize', ()=>{
+  animDartsInit();
+  runCompare();
+  drawCosts();
+});
 </script>
 </body>
 </html>
