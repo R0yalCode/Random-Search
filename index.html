@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Random Search – Demo Exposición Visual Profesional</title>
+  <style>
+    :root {
+      --azul: #173a60;
+      --azul2: #0b2342;
+      --dorado: #FFD846;
+      --verde: #1CB063;
+      --naranja: #FF7C37;
+      --gris: #F8F9FC;
+      --osc: #182331;
+    }
+    body { background: var(--gris); color: var(--osc); font-family: 'Segoe UI', 'Arial', sans-serif; margin:0;}
+    .container { max-width: 1200px; margin: 0 auto; padding: 2.7rem 2vw 4.5rem 2vw; }
+    header { background: linear-gradient(90deg, var(--azul) 68%, #203456 100%); color:#fff;
+      border-radius: 1.2em; box-shadow: 0 6px 50px #0001;
+      padding:2.7em 3vw 2.5em 3vw; margin:0 0 2.4em 0;}
+    header h1 { font-size:2.34rem; }
+    header .subtitle {font-size:1.16rem;margin-top:1.18em;color:#ffe493;}
+    .prof-block {background:#fff; border-radius: 1em; box-shadow:0 2px 27px #0001;
+      margin:2.15em 0; padding:2.45em 4vw;}
+    .prof-block .title {color:var(--azul);font-size:1.27rem;font-weight:bold;margin-bottom:.77em;}
+    .prof-desc {font-size:1.13em;line-height:1.7em;margin-bottom:1.14em;}
+    .prof-widget {margin:1.9em 0 1.5em 0;}
+    .btn-anima{background:var(--azul2);color:#fff;font-size:1.18em;padding:.36em 1.35em 0.45em 1.35em;
+      font-weight:500;border-radius:7px;border:none;box-shadow:0 2px 8px #18455f0c;cursor:pointer;}
+    .btn-anima:active{background:var(--dorado);color:var(--azul);}
+    .anima-text{min-height:44px;margin:.48em 0 0.33em 0;padding:.15em 0 0 0;}
+    .anima-ctn{margin:1.1em 0 1.4em 0;}
+    .center{display:flex; flex-direction:column; align-items:center;}
+    .colores-legend{display:flex;gap:2.2em;margin:1.30em 0;}
+    .colores-legend span{display:flex;align-items:center;gap:.36em;font-size:1.12em;}
+    .legend-dot{width:23px;height:23px;display:inline-block;border-radius:50%;vertical-align:middle;}
+    .dot-search{background:var(--naranja);}
+    .dot-optimo{background:var(--verde);}
+    .dot-grid{background:#bbc5e2;}
+    .param-table{width:100%;margin-top:1.1em;border-collapse:collapse;}
+    .param-table th{background:var(--azul2);color:#fff;}
+    .param-table td, .param-table th{padding:.86em .7em;font-size:1.09em;border:1px solid #eaeaea;}
+    .param-table td{background:#f9fafc;}
+    .o-block {background:#f0faf4; color:#1956a8; font-family:monospace;padding:.11em .63em; border-radius:7px}
+    @media(max-width:1050px){
+      .container,.prof-block,header{padding:1.13em;}
+      canvas{width:94vw !important; max-width:99vw !important;}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Random Search<br><span style="color:var(--dorado);"></span></h1>
+</header>
+
+<!-- 1. Qué es Random Search (dardos) -->
+<section class="prof-block">
+  <div class="title">¿Qué es Random Search?</div>
+  <div class="prof-desc">
+    Random Search es una forma de explorar y probar distintas opciones en problemas complejos, eligiendo <b>soluciones al azar</b> dentro de todo el espacio posible.<br>
+    Es como lanzar dardos hacia una diana gigante, pero sólo unos pocos caen (probar todo es imposible).
+  </div>
+  <div class="center anima-ctn">
+    <button class="btn-anima" onclick="showDarts()">Ver animación ▶️</button>
+    <canvas id="darts" width="650" height="260" style="background:#fefdff;border-radius:13px;margin:1.2em 0 0 0;box-shadow:0 2px 20px #b4bfc812;"></canvas>
+    <div class="anima-text" id="dartsTxt"></div>
+  </div>
+</section>
+
+<!-- 2. Analogía visual: garage -->
+<section class="prof-block">
+  <div class="title">Analogía Visual: El Garage de Equipos</div>
+  <div class="prof-desc">
+    El “garage” es el universo de combinaciones de modelos posibles.<br>
+    Random Search escoge algunos autos al azar y busca el ganador. Verlo ayuda a entender la diferencia frente a buscar “todos los autos”.
+  </div>
+  <div class="center anima-ctn">
+    <button class="btn-anima" onclick="showGarage()">Mostrar Garage ▶️</button>
+    <canvas id="garage" width="650" height="165" style="background:#f6f7fa;border-radius:13px;box-shadow:0 2px 12px #ffe06111;margin:1.23em auto 0 auto;"></canvas>
+    <div class="anima-text" id="garageTxt"></div>
+  </div>
+</section>
+
+<!-- 3. Funcionamiento paso a paso, animación secuencial -->
+<section class="prof-block">
+  <div class="title">Funcionamiento Secuencial de Random Search</div>
+  <div class="prof-desc">Cada etapa: definir espacio, seleccionar aleatorio, evaluar, elegir... El ciclo fundamental de Random Search.</div>
+  <div class="center anima-ctn">
+    <button class="btn-anima" onclick="showStepwise()">Siguiente paso ▶️</button>
+    <canvas id="stepWise" width="690" height="180" style="background:#f8fbfc;border-radius:13px;margin:1.5em auto 0 auto;"></canvas>
+    <div class="anima-text" id="stepWiseTxt"></div>
+  </div>
+</section>
+
+<!-- 4. Árbol binario profesional, resaltando la profundidad -->
+<section class="prof-block">
+  <div class="title">Un árbol de decisión (ejemplo)</div>
+  <div class="prof-desc">
+    Cada configuración probada por Random Search genera “árboles binarios” (mecanismos reales de diagnóstico automático).
+  </div>
+  <div class="center anima-ctn">
+    <button class="btn-anima" onclick="drawTree()">Mostrar árbol ▶️</button>
+    <canvas id="tree" width="570" height="210" style="background:#eef8fc;border-radius:14px;box-shadow:0 1px 18px #5690da33;margin:1.4em 0 0 0;"></canvas>
+    <div class="anima-text" id="treeTxt"></div>
+  </div>
+</section>
+
+<!-- 5. Visualización comparativa -->
+<section class="prof-block">
+  <div class="title">Random Search vs Grid Search</div>
+  <div style="font-size:1.14em;margin-bottom:.65em;">
+    Compara visualmente cuántos intentos usa cada método y el “ahorro” de Random Search.
+  </div>
+  <div class="center anima-ctn">
+    <label>Random intentos:<input id="tries" type="number" min="3" max="22" value="8" style="width:3em;margin-right:1.6em;margin-left:.45em;"></label>
+    <label>Grid resol:<input id="resGrid" type="number" min="2" max="8" value="4" style="width:3em;margin-left:.5em;"></label>
+    <button class="btn-anima" onclick="simulateSearch()">Ejecutar</button>
+    <canvas id="scatter" width="650" height="325" style="background:#fcfcfd;border-radius:17px;margin:2em auto 0 auto;box-shadow:0 2px 25px #bad9f73d;"></canvas>
+    <div class="colores-legend">
+      <span><span class="legend-dot dot-search"></span>Random</span>
+      <span><span class="legend-dot dot-optimo"></span>Óptimo</span>
+      <span><span class="legend-dot dot-grid"></span>Grid</span>
+    </div>
+    <div class="anima-text" id="scatterTxt"></div>
+  </div>
+</section>
+
+<!-- 6. Teoría final y big-O -->
+<section class="prof-block">
+  <div class="title">Coste computacional y eficiencia (Big O)</div>
+  <div class="prof-desc">
+    <b>Random Search:</b> <span class="o-block">O(k·C)</span> &nbsp;
+    <b>Grid Search:</b> <span class="o-block">O(g·C)</span><br>
+    <i>“k” = intentos random, “g” = toda la grilla, “C” = coste de entrenar/evaluar un modelo.</i><br>
+    <b>Cuanto más grande el espacio, más ahorro de Random Search.</b>
+  </div>
+</section>
+</div>
+
+<script>
+/** 1. Dardos: grandes, con movimiento **/
+function showDarts(){
+  let c=document.getElementById("darts"); let ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  // Fondo: espacio total (diana)
+  ctx.beginPath();
+  ctx.arc(260,125,92,0,2*Math.PI);
+  ctx.fillStyle="#e2e9ee"; ctx.fill();
+  ctx.lineWidth=9; ctx.strokeStyle="#FFD846"; ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(260,125,57,0,2*Math.PI);
+  ctx.lineWidth=4.5; ctx.strokeStyle="#afbbcd"; ctx.stroke();
+  // "Óptimo" - el centro verdadero
+  ctx.beginPath();
+  ctx.arc(260,125,15,0,2*Math.PI);
+  ctx.globalAlpha=.57;ctx.fillStyle="#1CB063"; ctx.fill();
+  ctx.globalAlpha=1;
+  // Dardos "al azar"
+  let n=9, darts=[];
+  for(let i=0;i<n;++i){
+    let ang=1.5+Math.random()*4.6;
+    let r=36+Math.random()*60;
+    let x=260+Math.cos(ang)*r, y=125+Math.sin(ang)*r;
+    darts.push({x,y});
+    setTimeout(()=>{ctx.beginPath();
+      ctx.arc(x,y,17,0,2*Math.PI);
+      ctx.fillStyle=(i===n-2)?"#FF7C37":"#3176ff";
+      ctx.globalAlpha=.94;ctx.fill();ctx.globalAlpha=1;
+      ctx.lineWidth=2.3;ctx.strokeStyle="#193460";ctx.stroke();
+      // Highlight arrow
+      if(i===n-2){
+        ctx.beginPath();
+        ctx.moveTo(x, y-22);ctx.lineTo(x, y-5);
+        ctx.strokeStyle="#FF7C37"; ctx.lineWidth=4.7;ctx.stroke();
+      }
+    },i*140+80);
+  }
+  // Etiquetas
+  ctx.font="1.5em Segoe UI";ctx.fillStyle="#184a8c";
+  ctx.fillText("Espacio de modelos",35,37);
+  ctx.font="bold 1.2em Segoe UI";ctx.fillStyle="#FF7C37";
+  ctx.fillText("Random Search",30,215);
+  ctx.font="1em Segoe UI";ctx.fillStyle="#1CB063";
+  ctx.fillText("Óptimo",336,140);
+  document.getElementById('dartsTxt').innerHTML=`
+    <b>Visual:</b><br>
+    El círculo dorado es el “universo” de todos los modelos posibles.<br>
+    Las esferas (dardos) son los intentos de Random Search (uno resaltado es el mejor hallado).<br>
+    <span style="color:#184a8c;">NUNCA se explora todo el universo, pero sí se cubren las zonas prometedoras.</span>
+  `;
+}
+
+/** 2. Garage: gran grilla, autos “al azar” animados **/
+function showGarage(){
+  let can=document.getElementById("garage"); let ctx=can.getContext('2d');
+  ctx.clearRect(0,0,can.width,can.height);
+  // garage
+  let rows=4, cols=12, sel=[];
+  for(let j=0;j<rows;++j){
+    for(let i=0;i<cols;++i){
+      ctx.beginPath();
+      ctx.rect(25+i*49,25+j*32,40,30);
+      ctx.fillStyle="#e6ecf9";
+      ctx.fill();
+      ctx.lineWidth=1.7;ctx.strokeStyle="#b7b7b7";ctx.stroke();
+    }
+  }
+  // Elijo 7 randoms y el mejor:
+  while(sel.length<7){
+    let s=[Math.floor(Math.random()*cols),Math.floor(Math.random()*rows)];
+    if(!sel.some(([x,y])=>x===s[0]&&y===s[1])) sel.push(s);
+  }
+  // highlight
+  sel.forEach((s,idx)=>{
+    setTimeout(()=>{ctx.beginPath();
+      ctx.ellipse(45+s[0]*49,39+s[1]*32,19,12,0,0,2*Math.PI);
+      ctx.fillStyle= idx==6 ? "#FFD846":"#FF7C37";
+      ctx.globalAlpha= idx==6 ? 1 : .89;
+      ctx.fill();ctx.globalAlpha=1;
+      ctx.lineWidth=2.3;ctx.strokeStyle="#a8881a";ctx.stroke();
+      // draw trophy on "mejor"
+      if(idx==6){
+        ctx.font="1.87em Segoe UI"; ctx.fillStyle="#FFD846";
+        ctx.fillText("🏆",45+s[0]*49,70+s[1]*32);
+      }
+    },120*idx+160);
+  });
+  ctx.font="1.26em Segoe UI";ctx.fillStyle="#174a94";
+  ctx.fillText("Garage: todos modelos",45,32);
+  document.getElementById('garageTxt').innerHTML=`
+    <b>Visual:</b> En vez de explorar cada auto (combinación), Random Search prueba sólo unos pocos <span style="color:#FF7C37">naranjas</span>.<br>
+    El ganador óptimo se resalta en <span style="color:#FFD846">dorado</span> y 🏆.
+  `;
+}
+
+/** 3. Secuencia paso-a-paso (animado/guiado, destacado en cada paso) **/
+let stepS=0;
+function showStepwise(){
+  let can=document.getElementById("stepWise"); let ctx=can.getContext('2d');
+  ctx.clearRect(0,0,can.width,can.height);
+  let N=9;
+  stepS = (stepS%4)+1;
+  // 1. Espacio
+  for(let i=0;i<N;++i){
+      ctx.beginPath();
+      ctx.arc(60+70*i,90,33,0,2*Math.PI);
+      ctx.fillStyle= (stepS==1)?"#fff1ca":"#dde2eb";
+      ctx.globalAlpha=1; ctx.fill();
+      ctx.lineWidth=3;ctx.strokeStyle=(stepS==1)?"#FFD846":"#aaa";ctx.stroke();
+      ctx.font="1.17em Segoe UI"; ctx.fillStyle="#af9007";
+      if(stepS==1) ctx.fillText(""+(i+1),60+70*i,140);
+  }
+  if(stepS>=2){
+    for(let i=0;i<4;++i){
+      let idx=1+2*i+Math.round(Math.random()*1);
+      ctx.beginPath();
+      ctx.arc(60+70*idx,90,33,0,2*Math.PI);
+      ctx.fillStyle="#FF7C37";ctx.globalAlpha=0.99;ctx.fill();
+      ctx.lineWidth=3;ctx.strokeStyle="#c35421";ctx.stroke();
+      ctx.font="bold 1.17em Segoe UI";ctx.fillStyle="#fff";
+      ctx.fillText("?",60+70*idx,95);
+      // animar flecha
+      if(i==2){
+        ctx.beginPath();
+        ctx.moveTo(60+70*idx,55); ctx.lineTo(60+70*idx,27);ctx.lineWidth=3;ctx.strokeStyle="#FF7C37";ctx.stroke();
+        ctx.font="bold 1.25em Segoe UI"; ctx.fillStyle="#FF7C37";
+        ctx.fillText("Test",60+70*idx,21);
+      }
+    }
+  }
+  if(stepS>=3){
+    let idx=2*Math.floor(N/3)+1;
+    ctx.beginPath();
+    ctx.arc(60+70*idx,90,33,0,2*Math.PI);
+    ctx.fillStyle="#1CB063"; ctx.globalAlpha=1.0;ctx.fill();
+    ctx.lineWidth=4.6;ctx.strokeStyle="#247437";ctx.stroke();
+    ctx.font="bold 1.17em Segoe UI";ctx.fillStyle="#fff";
+    ctx.fillText("✓",60+70*idx,93);
+    // Trofeo
+    ctx.font="2.3em Segoe UI";
+    ctx.fillText("🏆",60+70*idx,170);
+  }
+  // Leyenda + texto
+  let txs=[
+    "<b>1:</b> Definir espacio de todas las posibles configuraciones (cada círculo es una posibilidad).",
+    "<b>2:</b> Random Search marca varias opciones al azar y las prueba.",
+    "<b>3:</b> Evalúa rendimiento y encuentra la mejor (“la campeona”).",
+    "<b>4:</b> Selecciona la mejor y ¡termina la búsqueda!"
+  ];
+  document.getElementById('stepWiseTxt').innerHTML=txs[stepS-1];
+}
+
+/** 4. Árbol binario gran tamaño, animado **/
+function drawTree(){
+  let can=document.getElementById("tree"); let ctx=can.getContext('2d');
+  ctx.clearRect(0,0,can.width,can.height);
+  let depth = 3 + Math.floor(Math.random()*2.4); 
+  let nodes = [];
+  function layout(x,y,dep,dx){
+    if(dep>depth) return;
+    nodes.push({x,y,dep});
+    if(dep<depth){
+      layout(x-dx,y+50,dep+1,dx/1.7);
+      layout(x+dx,y+50,dep+1,dx/1.7);
+    }
+  }
+  layout(285,48,1,112);
+  // edges
+  ctx.strokeStyle="#afcbfa"; ctx.lineWidth=2.55;
+  nodes.forEach(n=>{ if(n.dep<depth){
+    let ch=nodes.filter(nn=>nn.dep===n.dep+1 && Math.abs(nn.x-n.x)<120 && Math.abs(nn.y-n.y)<71);
+    for(let c of ch){ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(c.x,c.y);ctx.stroke();}
+  }});
+  // nodes y animaciones
+  nodes.forEach((n,ii)=>{
+    setTimeout(()=>{
+      ctx.beginPath();
+      ctx.arc(n.x,n.y,22,0,2*Math.PI);
+      ctx.fillStyle= n.dep===1 ? "#FFE18C" : (n.dep==depth ? "#DCF1FC" :"#FFF");
+      ctx.strokeStyle= n.dep===1 ? "#FFD846" : "#2186e7";
+      ctx.lineWidth= n.dep===1 ? 4 : 1.74;
+      ctx.fill();ctx.stroke();
+      ctx.font="bold 1.17em Segoe UI";
+      ctx.fillStyle=(n.dep===1)?"#7b4d00":"#2a3361";
+      ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.fillText(n.dep, n.x, n.y);
+      if(n.dep==depth){
+        ctx.font="1.15em Segoe UI";
+        ctx.fillStyle="#4676b3";
+        ctx.fillText("Fallo",n.x,n.y+27);
+      }
+    },ii*55+50);
+  });
+  ctx.font="1.26em Segoe UI";ctx.fillStyle="#edad22";
+  ctx.fillText("Raíz",285,30);
+  ctx.fillStyle="#2186e7";
+  ctx.font="1.11em Segoe UI";
+  ctx.fillText(`Profundidad ${depth}`,420,30);
+  document.getElementById('treeTxt').innerHTML=`
+    <b>Visual:</b><br>Árbol binario generado por alguna configuración random.<br>
+    La raíz hace la pregunta más general; a medida que baja, cada nodo toma decisiones especializadas.<br>
+    Las hojas (“Fallo”) deciden la predicción final.
+  `;
+}
+
+/** 5. Comparativa random vs grid, en grande y con leyenda **/
+function simulateSearch() {
+  let k = +document.getElementById('tries').value;
+  let ng = +document.getElementById('resGrid').value;
+  let treesMin=50, treesMax=250, depthMin=2, depthMax=11;
+  let combos = [];
+  let xs=[...Array(ng)].map((_,i)=>Math.round(treesMin + i*(treesMax-treesMin)/(ng-1)));
+  let ys=[...Array(ng)].map((_,i)=>Math.round(depthMin + i*(depthMax-depthMin)/(ng-1)));
+  for(let x of xs){ for(let y of ys){ combos.push([x,y]); } }
+  let randoms = [];
+  for(let i=0;i<k;++i){
+    let x=treesMin+Math.round(Math.random()*(treesMax-treesMin));
+    let y=depthMin+Math.round(Math.random()*(depthMax-depthMin));
+    randoms.push([x,y]);
+  }
+  let scores = randoms.map(([x,y]) =>
+      0.7 + 0.29*(1-Math.exp(-x/120)) + 0.085*Math.random() + .04*(y-2)/10
+  );
+  let idxBest = scores.indexOf(Math.max(...scores));
+  let canvas = document.getElementById('scatter');let ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // grid
+  for(let [x,y] of combos){
+    let px=65+(x-treesMin)/200*440, py=300-(y-depthMin)/9*215;
+    ctx.beginPath();ctx.arc(px,py,7,0,2*Math.PI);
+    ctx.fillStyle="#bbc5e2"; ctx.globalAlpha=.33;ctx.fill();ctx.globalAlpha=1.0;
+  }
+  // randoms
+  for(let i=0;i<randoms.length;++i){
+    let [x,y]=randoms[i];
+    let px=65+(x-treesMin)/200*440, py=300-(y-depthMin)/9*215;
+    ctx.beginPath();ctx.arc(px,py,19,0,2*Math.PI);
+    ctx.fillStyle=(i===idxBest)?"#1CB063":"#FF7C37";
+    ctx.globalAlpha=(i===idxBest)?1:.92;
+    ctx.fill();ctx.globalAlpha=1.0;
+    ctx.strokeStyle="#173a60";
+    ctx.lineWidth=(i===idxBest)?3.9:1.7;
+    ctx.stroke();
+    ctx.font="1em Segoe UI";
+    if(i===idxBest){
+      ctx.fillStyle="#1CB063";
+      ctx.font="1.49em Segoe UI";
+      ctx.fillText("✓",px,py+6);
+    }
+  }
+  // Ejes
+  ctx.strokeStyle="#374768";ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(54,301);ctx.lineTo(590,301);ctx.lineTo(590,48);ctx.stroke();
+  // leyendas
+  ctx.font="1.23em Segoe UI";ctx.fillStyle="#173a60";
+  ctx.fillText("Árboles",280,319);
+  ctx.save();ctx.translate(33,186);ctx.rotate(-Math.PI/2);ctx.fillText("Profundidad",0,0);ctx.restore();
+  document.getElementById('scatterTxt').innerHTML=`
+    <b>Visual:</b> <span style="color:#bbc5e2;">Gris</span> = todas combinaciones posibles (Grid Search).<br>
+    <span style="color:#FF7C37;">Naranja</span> = intentos Random Search.<br>
+    <span style="color:#1CB063;">Verde</span> = mejor encontrado.<br>
+    <b>Random Search prueba menos intentos pero puede lograr óptimos igual de buenos.</b>`;
+}
+</script>
+</body>
+</html>
