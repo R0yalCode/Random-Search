@@ -1,1073 +1,2593 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Random Search — Conferencia</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-<style>
-/* ─── TOKENS ─────────────────────────────────────────────────── */
-:root{
-  --bg:#0b1120; --bg2:#111827; --bg3:#1a2236;
-  --card:#151e30; --card2:#1c2840;
-  --border:#1f3050;
-  --txt:#e8edf8; --txt2:#8a9bc0; --txt3:#c2cfe0;
-  --accent:#4f9cf9; --accent2:#7c3aed;
-  --gold:#f0b429; --green:#22c55e; --orange:#fb923c; --red:#f87171;
-  --glow:rgba(79,156,249,.22);
-  --font:'Space Grotesk',sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --head:'Syne',sans-serif;
-  --rad:14px; --rad2:8px;
-  --shadow:0 8px 40px rgba(0,0,0,.45);
-  --transition:all .3s cubic-bezier(.4,0,.2,1);
-}
-[data-theme="light"]{
-  --bg:#f0f4ff; --bg2:#e8edf7; --bg3:#dce4f2;
-  --card:#fff; --card2:#f5f8ff;
-  --border:#d0daf0; --txt:#1a2236; --txt2:#4a5880; --txt3:#2d3e60;
-  --shadow:0 8px 40px rgba(30,60,130,.10);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--txt);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Random Search — Conferencia</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ─── TOKENS ─────────────────────────────────────────────────── */
+        :root {
+            --bg: #0b1120;
+            --bg2: #111827;
+            --bg3: #1a2236;
+            --card: #151e30;
+            --card2: #1c2840;
+            --border: #1f3050;
+            --txt: #e8edf8;
+            --txt2: #8a9bc0;
+            --txt3: #c2cfe0;
+            --accent: #4f9cf9;
+            --accent2: #7c3aed;
+            --gold: #f0b429;
+            --green: #22c55e;
+            --orange: #fb923c;
+            --red: #f87171;
+            --glow: rgba(79, 156, 249, .22);
+            --font: 'Space Grotesk', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --head: 'Syne', sans-serif;
+            --rad: 14px;
+            --rad2: 8px;
+            --shadow: 0 8px 40px rgba(0, 0, 0, .45);
+            --transition: all .3s cubic-bezier(.4, 0, .2, 1);
+        }
 
-/* ─── NOISE TEXTURE OVERLAY ─────────────────────────────────── */
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.6;}
+        [data-theme="light"] {
+            --bg: #f0f4ff;
+            --bg2: #e8edf7;
+            --bg3: #dce4f2;
+            --card: #fff;
+            --card2: #f5f8ff;
+            --border: #d0daf0;
+            --txt: #1a2236;
+            --txt2: #4a5880;
+            --txt3: #2d3e60;
+            --shadow: 0 8px 40px rgba(30, 60, 130, .10);
+        }
 
-/* ─── NAV ────────────────────────────────────────────────────── */
-#topnav{
-  position:sticky;top:0;z-index:999;
-  background:rgba(11,17,32,.88);
-  backdrop-filter:blur(18px);
-  border-bottom:1px solid var(--border);
-  padding:.55rem 1rem;
-  display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;justify-content:center;
-  transition:var(--transition);
-}
-[data-theme="light"] #topnav{background:rgba(240,244,255,.92);}
-.nav-btn{
-  background:transparent;border:1px solid var(--border);color:var(--txt2);
-  font-family:var(--font);font-size:.78rem;font-weight:500;
-  padding:.3rem .75rem;border-radius:30px;cursor:pointer;
-  transition:var(--transition);white-space:nowrap;
-}
-.nav-btn:hover,.nav-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 14px var(--glow);}
-#theme-toggle{
-  margin-left:auto;background:transparent;border:1px solid var(--border);
-  color:var(--txt2);font-size:1.1rem;width:34px;height:34px;border-radius:50%;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);
-}
-#theme-toggle:hover{background:var(--card2);color:var(--gold);}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-/* ─── LAYOUT ─────────────────────────────────────────────────── */
-.container{max-width:1120px;margin:0 auto;padding:0 1.5rem 5rem;}
+        html {
+            scroll-behavior: smooth;
+        }
 
-/* ─── HERO ───────────────────────────────────────────────────── */
-.hero{
-  position:relative;overflow:hidden;
-  padding:4.5rem 3rem 4rem;margin:2rem 0;
-  background:linear-gradient(135deg,#0d1f3c 0%,#0b2952 50%,#0a1628 100%);
-  border:1px solid var(--border);border-radius:22px;
-  box-shadow:var(--shadow);
-}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(79,156,249,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,156,249,.06) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
-.hero-glow{position:absolute;top:-80px;right:-80px;width:450px;height:450px;background:radial-gradient(circle,rgba(79,156,249,.18) 0%,transparent 70%);pointer-events:none;}
-.hero h1{font-family:var(--head);font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;position:relative;}
-.hero h1 span{background:linear-gradient(90deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:1.1rem;color:var(--txt2);margin-top:1rem;max-width:560px;position:relative;}
-.hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(79,156,249,.12);border:1px solid rgba(79,156,249,.3);color:var(--accent);font-size:.78rem;font-weight:600;padding:.25rem .7rem;border-radius:20px;margin-bottom:1rem;letter-spacing:.06em;}
-.progress-bar{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:2rem;position:relative;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#a78bfa);border-radius:2px;transition:width .4s ease;width:0%;}
+        body {
+            background: var(--bg);
+            color: var(--txt);
+            font-family: var(--font);
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-/* ─── SECTION CARD ───────────────────────────────────────────── */
-.s-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--rad);
-  padding:2.2rem 2.5rem;margin:1.8rem 0;
-  box-shadow:var(--shadow);position:relative;overflow:hidden;
-  transition:var(--transition);
-}
-.s-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#a78bfa);opacity:0;transition:opacity .3s;}
-.s-card:hover::before{opacity:1;}
-.s-card:hover{border-color:rgba(79,156,249,.3);}
-.s-num{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;}
-.s-title{font-family:var(--head);font-size:1.45rem;font-weight:700;margin-bottom:.9rem;line-height:1.2;}
-.s-desc{color:var(--txt3);font-size:1rem;line-height:1.72;margin-bottom:1.2rem;}
-.s-desc b,.s-desc strong{color:var(--txt);font-weight:600;}
+        /* ─── NOISE TEXTURE OVERLAY ─────────────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: .6;
+        }
 
-/* ─── TAKEAWAY BANNER ────────────────────────────────────────── */
-.takeaway{
-  background:linear-gradient(90deg,rgba(79,156,249,.1),rgba(124,58,237,.1));
-  border:1px solid rgba(79,156,249,.25);border-radius:var(--rad2);
-  padding:.85rem 1.1rem;margin-top:1.2rem;font-size:.92rem;
-  display:flex;gap:.6rem;align-items:flex-start;
-}
-.takeaway-icon{font-size:1.2rem;flex-shrink:0;margin-top:.1rem;}
-.takeaway-text{color:var(--txt3);}
-.takeaway-text strong{color:var(--accent);}
+        /* ─── NAV ────────────────────────────────────────────────────── */
+        #topnav {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: rgba(11, 17, 32, .88);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            padding: .55rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            transition: var(--transition);
+        }
 
-/* ─── FORMULA BLOCK ──────────────────────────────────────────── */
-.formula{
-  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad2);
-  padding:1.1rem 1.5rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;
-  display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;
-}
-.formula-part{display:flex;flex-direction:column;gap:.15rem;}
-.formula-eq{font-size:1.3rem;font-weight:700;color:var(--accent);}
-.formula-label{font-size:.72rem;color:var(--txt2);font-family:var(--font);}
-.var-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.55rem;margin:.8rem 0;}
-.var-row{background:var(--bg3);border-radius:var(--rad2);padding:.5rem .8rem;display:flex;gap:.6rem;align-items:center;}
-.var-tag{font-family:var(--mono);font-weight:700;color:var(--gold);font-size:.95rem;min-width:28px;}
-.var-def{font-size:.85rem;color:var(--txt3);}
+        [data-theme="light"] #topnav {
+            background: rgba(240, 244, 255, .92);
+        }
 
-/* ─── CANVAS WRAPPER ─────────────────────────────────────────── */
-.canvas-wrap{position:relative;margin:1.5rem 0;}
-canvas{display:block;width:100%;border-radius:12px;}
-.canvas-tooltip{
-  position:absolute;background:var(--card2);border:1px solid var(--border);
-  border-radius:var(--rad2);padding:.5rem .8rem;font-size:.8rem;color:var(--txt);
-  pointer-events:none;display:none;white-space:nowrap;box-shadow:var(--shadow);z-index:10;
-}
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--txt2);
+            font-family: var(--font);
+            font-size: .78rem;
+            font-weight: 500;
+            padding: .3rem .75rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
 
-/* ─── CONTROLS ───────────────────────────────────────────────── */
-.controls{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;margin:.8rem 0 1.2rem;}
-.ctrl-label{font-size:.85rem;color:var(--txt2);white-space:nowrap;}
-.ctrl-val{font-family:var(--mono);font-weight:700;color:var(--accent);min-width:40px;text-align:center;}
-input[type=range]{-webkit-appearance:none;width:180px;height:5px;background:var(--border);border-radius:3px;outline:none;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 8px var(--glow);}
-input[type=number]{width:62px;background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-family:var(--mono);font-size:.9rem;padding:.25rem .4rem;border-radius:var(--rad2);text-align:center;}
-.btn{
-  background:var(--accent);color:#fff;border:none;font-family:var(--font);
-  font-size:.88rem;font-weight:600;padding:.45rem 1.1rem;border-radius:30px;
-  cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:.4rem;
-  box-shadow:0 4px 18px var(--glow);
-}
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--glow);}
-.btn:active{transform:translateY(0);}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--txt2);box-shadow:none;}
-.btn-ghost:hover{background:var(--card2);color:var(--txt);border-color:var(--accent);}
-.btn-green{background:var(--green);}
-.btn-sm{font-size:.78rem;padding:.3rem .75rem;}
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 14px var(--glow);
+        }
 
-/* ─── RESULT BOX ─────────────────────────────────────────────── */
-.result-box{
-  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad2);
-  padding:.85rem 1.1rem;margin-top:.9rem;font-size:.88rem;color:var(--txt3);
-  min-height:48px;transition:var(--transition);
-}
-.result-box b,.result-box strong{color:var(--txt);}
+        #theme-toggle {
+            margin-left: auto;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--txt2);
+            font-size: 1.1rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
 
-/* ─── COMPARISON TABLE ───────────────────────────────────────── */
-.cmp-table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:1.2rem;}
-.cmp-table th{background:var(--bg3);padding:.75rem 1rem;text-align:left;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--txt2);border-bottom:1px solid var(--border);}
-.cmp-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;color:var(--txt3);}
-.cmp-table tr:last-child td{border-bottom:none;}
-.cmp-table tr:hover td{background:var(--bg3);}
-.cmp-rs{color:var(--orange);font-weight:600;}
-.cmp-gs{color:var(--accent);font-weight:600;}
-.pill{display:inline-block;padding:.15rem .55rem;border-radius:12px;font-size:.75rem;font-weight:600;margin:.1rem .1rem 0 0;}
-.pill-g{background:rgba(34,197,94,.15);color:var(--green);}
-.pill-r{background:rgba(248,113,113,.15);color:var(--red);}
+        #theme-toggle:hover {
+            background: var(--card2);
+            color: var(--gold);
+        }
 
-/* ─── HW RECOMMENDER ─────────────────────────────────────────── */
-.hw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.7rem;margin-top:.8rem;}
-.hw-card{
-  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad2);
-  padding:.75rem .6rem;text-align:center;transition:var(--transition);cursor:default;
-  opacity:.35;
-}
-.hw-card.active{opacity:1;border-color:var(--accent);background:rgba(79,156,249,.08);box-shadow:0 0 18px var(--glow);}
-.hw-card.active.warn{border-color:var(--red);background:rgba(248,113,113,.08);}
-.hw-icon{font-size:2rem;display:block;margin-bottom:.3rem;}
-.hw-label{font-size:.73rem;color:var(--txt2);font-weight:500;}
+        /* ─── LAYOUT ─────────────────────────────────────────────────── */
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 1.5rem 5rem;
+        }
 
-/* ─── SANDBOX ────────────────────────────────────────────────── */
-.sb-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1rem;}
-@media(max-width:700px){.sb-grid{grid-template-columns:1fr;}}
-.sb-param{display:flex;flex-direction:column;gap:.35rem;}
-.sb-param label{font-size:.8rem;color:var(--txt2);}
-.sb-param input{background:var(--bg3);border:1px solid var(--border);color:var(--txt);font-family:var(--mono);padding:.4rem .6rem;border-radius:var(--rad2);font-size:.9rem;}
-.sb-result{
-  grid-column:1/-1;background:var(--bg3);border:1px solid var(--border);
-  border-radius:var(--rad);padding:1rem;font-family:var(--mono);font-size:.83rem;
-  color:var(--txt3);min-height:80px;line-height:1.8;
-}
+        /* ─── HERO ───────────────────────────────────────────────────── */
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 4.5rem 3rem 4rem;
+            margin: 2rem 0;
+            background: linear-gradient(135deg, #0d1f3c 0%, #0b2952 50%, #0a1628 100%);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+        }
 
-/* ─── QUIZ ───────────────────────────────────────────────────── */
-.quiz-q{font-weight:600;font-size:.95rem;color:var(--txt);margin-bottom:.6rem;}
-.quiz-opts{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;}
-.quiz-opt{
-  background:var(--bg3);border:1px solid var(--border);color:var(--txt3);
-  font-family:var(--font);font-size:.85rem;padding:.45rem .9rem;border-radius:30px;
-  cursor:pointer;transition:var(--transition);
-}
-.quiz-opt:hover{border-color:var(--accent);color:var(--txt);}
-.quiz-opt.correct{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green);}
-.quiz-opt.wrong{background:rgba(248,113,113,.15);border-color:var(--red);color:var(--red);}
-.quiz-feedback{font-size:.85rem;color:var(--txt2);min-height:22px;padding-left:.2rem;}
-.quiz-score{font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--accent);margin-top:1rem;}
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(79, 156, 249, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(79, 156, 249, .06) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
 
-/* ─── SPLIT CANVAS ───────────────────────────────────────────── */
-.split-canvases{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.2rem 0;}
-@media(max-width:640px){.split-canvases{grid-template-columns:1fr;}}
-.split-title{font-size:.78rem;text-align:center;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt2);margin-bottom:.4rem;}
+        .hero-glow {
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(79, 156, 249, .18) 0%, transparent 70%);
+            pointer-events: none;
+        }
 
-/* ─── LEGEND ─────────────────────────────────────────────────── */
-.legend{display:flex;gap:1.2rem;flex-wrap:wrap;margin:.6rem 0;}
-.leg-item{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--txt2);}
-.leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+        .hero h1 {
+            font-family: var(--head);
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -.02em;
+            position: relative;
+        }
 
-/* ─── FOOTER ─────────────────────────────────────────────────── */
-.footer{text-align:center;padding:2rem 0;font-size:.8rem;color:var(--txt2);border-top:1px solid var(--border);margin-top:3rem;}
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--accent), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-/* ─── STEP FLOW ──────────────────────────────────────────────── */
-.step-nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;}
+        .hero-sub {
+            font-size: 1.1rem;
+            color: var(--txt2);
+            margin-top: 1rem;
+            max-width: 560px;
+            position: relative;
+        }
 
-/* ─── ANIM ───────────────────────────────────────────────────── */
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-.fade-up{animation:fadeUp .5s ease both;}
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(79, 156, 249, .12);
+            border: 1px solid rgba(79, 156, 249, .3);
+            color: var(--accent);
+            font-size: .78rem;
+            font-weight: 600;
+            padding: .25rem .7rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            letter-spacing: .06em;
+        }
 
-/* ─── RESPONSIVE ─────────────────────────────────────────────── */
-@media(max-width:760px){
-  .s-card{padding:1.4rem 1.2rem;}
-  .hero{padding:2.5rem 1.5rem 2rem;}
-  .controls{flex-direction:column;align-items:flex-start;}
-}
-</style>
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #a78bfa);
+            border-radius: 2px;
+            transition: width .4s ease;
+            width: 0%;
+        }
+
+        /* ─── SECTION CARD ───────────────────────────────────────────── */
+        .s-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--rad);
+            padding: 2.2rem 2.5rem;
+            margin: 1.8rem 0;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .s-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #a78bfa);
+            opacity: 0;
+            transition: opacity .3s;
+        }
+
+        .s-card:hover::before {
+            opacity: 1;
+        }
+
+        .s-card:hover {
+            border-color: rgba(79, 156, 249, .3);
+        }
+
+        .s-num {
+            font-family: var(--mono);
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            margin-bottom: .5rem;
+        }
+
+        .s-title {
+            font-family: var(--head);
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin-bottom: .9rem;
+            line-height: 1.2;
+        }
+
+        .s-desc {
+            color: var(--txt3);
+            font-size: 1rem;
+            line-height: 1.72;
+            margin-bottom: 1.2rem;
+        }
+
+        .s-desc b,
+        .s-desc strong {
+            color: var(--txt);
+            font-weight: 600;
+        }
+
+        /* ─── TAKEAWAY BANNER ────────────────────────────────────────── */
+        .takeaway {
+            background: linear-gradient(90deg, rgba(79, 156, 249, .1), rgba(124, 58, 237, .1));
+            border: 1px solid rgba(79, 156, 249, .25);
+            border-radius: var(--rad2);
+            padding: .85rem 1.1rem;
+            margin-top: 1.2rem;
+            font-size: .92rem;
+            display: flex;
+            gap: .6rem;
+            align-items: flex-start;
+        }
+
+        .takeaway-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: .1rem;
+        }
+
+        .takeaway-text {
+            color: var(--txt3);
+        }
+
+        .takeaway-text strong {
+            color: var(--accent);
+        }
+
+        /* ─── FORMULA BLOCK ──────────────────────────────────────────── */
+        .formula {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--rad2);
+            padding: 1.1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: var(--mono);
+            font-size: 1.05rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .formula-part {
+            display: flex;
+            flex-direction: column;
+            gap: .15rem;
+        }
+
+        .formula-eq {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .formula-label {
+            font-size: .72rem;
+            color: var(--txt2);
+            font-family: var(--font);
+        }
+
+        .var-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: .55rem;
+            margin: .8rem 0;
+        }
+
+        .var-row {
+            background: var(--bg3);
+            border-radius: var(--rad2);
+            padding: .5rem .8rem;
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .var-tag {
+            font-family: var(--mono);
+            font-weight: 700;
+            color: var(--gold);
+            font-size: .95rem;
+            min-width: 28px;
+        }
+
+        .var-def {
+            font-size: .85rem;
+            color: var(--txt3);
+        }
+
+        /* ─── CANVAS WRAPPER ─────────────────────────────────────────── */
+        .canvas-wrap {
+            position: relative;
+            margin: 1.5rem 0;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .canvas-tooltip {
+            position: absolute;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: var(--rad2);
+            padding: .5rem .8rem;
+            font-size: .8rem;
+            color: var(--txt);
+            pointer-events: none;
+            display: none;
+            white-space: nowrap;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        /* ─── CONTROLS ───────────────────────────────────────────────── */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .8rem;
+            margin: .8rem 0 1.2rem;
+        }
+
+        .ctrl-label {
+            font-size: .85rem;
+            color: var(--txt2);
+            white-space: nowrap;
+        }
+
+        .ctrl-val {
+            font-family: var(--mono);
+            font-weight: 700;
+            color: var(--accent);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 180px;
+            height: 5px;
+            background: var(--border);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--glow);
+        }
+
+        input[type=number] {
+            width: 62px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            font-family: var(--mono);
+            font-size: .9rem;
+            padding: .25rem .4rem;
+            border-radius: var(--rad2);
+            text-align: center;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-family: var(--font);
+            font-size: .88rem;
+            font-weight: 600;
+            padding: .45rem 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            box-shadow: 0 4px 18px var(--glow);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px var(--glow);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--txt2);
+            box-shadow: none;
+        }
+
+        .btn-ghost:hover {
+            background: var(--card2);
+            color: var(--txt);
+            border-color: var(--accent);
+        }
+
+        .btn-green {
+            background: var(--green);
+        }
+
+        .btn-sm {
+            font-size: .78rem;
+            padding: .3rem .75rem;
+        }
+
+        /* ─── RESULT BOX ─────────────────────────────────────────────── */
+        .result-box {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--rad2);
+            padding: .85rem 1.1rem;
+            margin-top: .9rem;
+            font-size: .88rem;
+            color: var(--txt3);
+            min-height: 48px;
+            transition: var(--transition);
+        }
+
+        .result-box b,
+        .result-box strong {
+            color: var(--txt);
+        }
+
+        /* ─── COMPARISON TABLE ───────────────────────────────────────── */
+        .cmp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .9rem;
+            margin-top: 1.2rem;
+        }
+
+        .cmp-table th {
+            background: var(--bg3);
+            padding: .75rem 1rem;
+            text-align: left;
+            font-size: .78rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--txt2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cmp-table td {
+            padding: .65rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            color: var(--txt3);
+        }
+
+        .cmp-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cmp-table tr:hover td {
+            background: var(--bg3);
+        }
+
+        .cmp-rs {
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .cmp-gs {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: .15rem .55rem;
+            border-radius: 12px;
+            font-size: .75rem;
+            font-weight: 600;
+            margin: .1rem .1rem 0 0;
+        }
+
+        .pill-g {
+            background: rgba(34, 197, 94, .15);
+            color: var(--green);
+        }
+
+        .pill-r {
+            background: rgba(248, 113, 113, .15);
+            color: var(--red);
+        }
+
+        /* ─── HW RECOMMENDER ─────────────────────────────────────────── */
+        .hw-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: .7rem;
+            margin-top: .8rem;
+        }
+
+        .hw-card {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--rad2);
+            padding: .75rem .6rem;
+            text-align: center;
+            transition: var(--transition);
+            cursor: default;
+            opacity: .35;
+        }
+
+        .hw-card.active {
+            opacity: 1;
+            border-color: var(--accent);
+            background: rgba(79, 156, 249, .08);
+            box-shadow: 0 0 18px var(--glow);
+        }
+
+        .hw-card.active.warn {
+            border-color: var(--red);
+            background: rgba(248, 113, 113, .08);
+        }
+
+        .hw-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: .3rem;
+        }
+
+        .hw-label {
+            font-size: .73rem;
+            color: var(--txt2);
+            font-weight: 500;
+        }
+
+        /* ─── SANDBOX ────────────────────────────────────────────────── */
+        .sb-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        @media(max-width:700px) {
+            .sb-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sb-param {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+
+        .sb-param label {
+            font-size: .8rem;
+            color: var(--txt2);
+        }
+
+        .sb-param input {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            font-family: var(--mono);
+            padding: .4rem .6rem;
+            border-radius: var(--rad2);
+            font-size: .9rem;
+        }
+
+        .sb-result {
+            grid-column: 1/-1;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--rad);
+            padding: 1rem;
+            font-family: var(--mono);
+            font-size: .83rem;
+            color: var(--txt3);
+            min-height: 80px;
+            line-height: 1.8;
+        }
+
+        /* ─── QUIZ ───────────────────────────────────────────────────── */
+        .quiz-q {
+            font-weight: 600;
+            font-size: .95rem;
+            color: var(--txt);
+            margin-bottom: .6rem;
+        }
+
+        .quiz-opts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: .6rem;
+        }
+
+        .quiz-opt {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--txt3);
+            font-family: var(--font);
+            font-size: .85rem;
+            padding: .45rem .9rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quiz-opt:hover {
+            border-color: var(--accent);
+            color: var(--txt);
+        }
+
+        .quiz-opt.correct {
+            background: rgba(34, 197, 94, .15);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .quiz-opt.wrong {
+            background: rgba(248, 113, 113, .15);
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .quiz-feedback {
+            font-size: .85rem;
+            color: var(--txt2);
+            min-height: 22px;
+            padding-left: .2rem;
+        }
+
+        .quiz-score {
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 1rem;
+        }
+
+        /* ─── SPLIT CANVAS ───────────────────────────────────────────── */
+        .split-canvases {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.2rem 0;
+        }
+
+        @media(max-width:640px) {
+            .split-canvases {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .split-title {
+            font-size: .78rem;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--txt2);
+            margin-bottom: .4rem;
+        }
+
+        /* ─── LEGEND ─────────────────────────────────────────────────── */
+        .legend {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin: .6rem 0;
+        }
+
+        .leg-item {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            font-size: .8rem;
+            color: var(--txt2);
+        }
+
+        .leg-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ─── FOOTER ─────────────────────────────────────────────────── */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            font-size: .8rem;
+            color: var(--txt2);
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+
+        /* ─── STEP FLOW (SECTION 04 — REFACTORED) ──────────────────── */
+        .steps-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        /* Stepper progress bar */
+        .stepper-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: .6rem;
+            position: relative;
+        }
+
+        .stepper-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--bg3);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--txt2);
+            transition: all .4s cubic-bezier(.4,0,.2,1);
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .stepper-dot:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .stepper-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 18px var(--glow), 0 0 40px rgba(79,156,249,.15);
+            transform: scale(1.15);
+        }
+
+        .stepper-dot.completed {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+
+        .stepper-line {
+            height: 3px;
+            flex: 1;
+            background: var(--border);
+            margin: 0 -1px;
+            position: relative;
+            z-index: 1;
+            min-width: 30px;
+            max-width: 100px;
+        }
+
+        .stepper-line.filled {
+            background: linear-gradient(90deg, var(--green), var(--accent));
+        }
+
+        /* Step Navigation Buttons */
+        .step-nav {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-btn {
+            background: var(--bg3);
+            border: 1.5px solid var(--border);
+            color: var(--txt2);
+            font-family: var(--font);
+            font-size: .82rem;
+            font-weight: 600;
+            padding: .5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all .35s cubic-bezier(.4,0,.2,1);
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            opacity: 0;
+            transition: opacity .35s;
+            border-radius: 30px;
+        }
+
+        .step-btn:hover {
+            border-color: var(--accent);
+            color: var(--txt);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px var(--glow);
+        }
+
+        .step-btn:hover::before {
+            opacity: .12;
+        }
+
+        .step-btn.active {
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 20px var(--glow);
+            transform: scale(1.04);
+        }
+
+        .step-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-btn .step-icon {
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Prev/Next Arrow Buttons */
+        .step-arrows {
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .arrow-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg3);
+            border: 1.5px solid var(--border);
+            color: var(--txt2);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .3s cubic-bezier(.4,0,.2,1);
+        }
+
+        .arrow-btn:hover:not(:disabled) {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 0 14px var(--glow);
+        }
+
+        .arrow-btn:disabled {
+            opacity: .3;
+            cursor: not-allowed;
+        }
+
+        .auto-btn {
+            background: linear-gradient(135deg, var(--accent2), #6366f1);
+            border: none;
+            color: #fff;
+            font-family: var(--font);
+            font-size: .8rem;
+            font-weight: 600;
+            padding: .42rem .9rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all .3s cubic-bezier(.4,0,.2,1);
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            box-shadow: 0 4px 14px rgba(124,58,237,.3);
+        }
+
+        .auto-btn:hover {
+            transform: translateY(-1px) scale(1.03);
+            box-shadow: 0 6px 22px rgba(124,58,237,.4);
+        }
+
+        .auto-btn.playing {
+            background: linear-gradient(135deg, var(--red), #ef4444);
+            box-shadow: 0 4px 14px rgba(248,113,113,.3);
+        }
+
+        /* Steps Canvas — Large & Responsive */
+        .steps-canvas-area {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1.5px solid var(--border);
+            background: var(--bg3);
+            box-shadow: inset 0 2px 20px rgba(0,0,0,.2);
+            transition: border-color .4s;
+        }
+
+        .steps-canvas-area.active-glow {
+            border-color: rgba(79,156,249,.4);
+            box-shadow: inset 0 2px 20px rgba(0,0,0,.2), 0 0 30px rgba(79,156,249,.08);
+        }
+
+        .steps-canvas-area canvas {
+            display: block;
+            width: 100%;
+            border-radius: 14px;
+        }
+
+        /* Finish Celebration Overlay */
+        .steps-finish-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(11,17,32,.88);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .5s;
+            z-index: 10;
+        }
+
+        .steps-finish-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .finish-title {
+            font-family: var(--head);
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--green), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: finishPulse 1.8s ease-in-out infinite;
+        }
+
+        .finish-sub {
+            color: var(--txt2);
+            font-size: 1rem;
+            margin-top: .5rem;
+        }
+
+        @keyframes finishPulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.04); filter: brightness(1.2); }
+        }
+
+        /* Explanation Panel — below canvas */
+        .steps-explanation {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--rad);
+            padding: 1.2rem 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            transition: all .4s cubic-bezier(.4,0,.2,1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .steps-explanation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent), var(--accent2));
+            border-radius: 4px 0 0 4px;
+        }
+
+        .explanation-main {
+            padding-left: .8rem;
+        }
+
+        .explanation-title {
+            font-family: var(--head);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: .5rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .explanation-title .step-badge {
+            background: var(--accent);
+            color: #fff;
+            font-family: var(--mono);
+            font-size: .7rem;
+            padding: .15rem .5rem;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .explanation-body {
+            color: var(--txt3);
+            font-size: .92rem;
+            line-height: 1.7;
+        }
+
+        .explanation-body b, .explanation-body strong {
+            color: var(--txt);
+        }
+
+        .explanation-body .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .explanation-analogy {
+            background: rgba(240,180,41,.08);
+            border: 1px solid rgba(240,180,41,.2);
+            border-radius: var(--rad2);
+            padding: .65rem .9rem;
+            font-size: .85rem;
+            color: var(--txt3);
+            display: flex;
+            gap: .5rem;
+            align-items: flex-start;
+            margin-top: .5rem;
+        }
+
+        .explanation-analogy .analogy-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .explanation-key {
+            background: rgba(79,156,249,.08);
+            border: 1px solid rgba(79,156,249,.2);
+            border-radius: var(--rad2);
+            padding: .55rem .85rem;
+            font-size: .82rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: .4rem;
+        }
+
+        /* Pseudocode / Technical Panel */
+        .steps-tech-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: .2rem;
+        }
+
+        @media(max-width:700px) {
+            .steps-tech-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tech-block {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--rad2);
+            padding: .8rem 1rem;
+        }
+
+        .tech-block-title {
+            font-family: var(--mono);
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: .5rem;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .tech-block pre {
+            font-family: var(--mono);
+            font-size: .78rem;
+            line-height: 1.65;
+            color: var(--txt3);
+            white-space: pre-wrap;
+            margin: 0;
+        }
+
+        .tech-block pre .kw { color: var(--accent2); font-weight: 600; }
+        .tech-block pre .fn { color: var(--accent); }
+        .tech-block pre .cm { color: var(--txt2); font-style: italic; }
+        .tech-block pre .st { color: var(--green); }
+        .tech-block pre .nb { color: var(--gold); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: .5rem;
+            background: var(--bg3);
+            border-radius: var(--rad2);
+        }
+
+        .stat-value {
+            font-family: var(--mono);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: .72rem;
+            color: var(--txt2);
+            margin-top: .15rem;
+        }
+
+        /* Step point animation */
+        @keyframes pointAppear {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        @keyframes pointBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes ringPulse {
+            0% { transform: scale(1); opacity: .8; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        @keyframes celebrateShake {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ─── ANIM ───────────────────────────────────────────────────── */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp .5s ease both;
+        }
+
+        /* ─── RESPONSIVE ─────────────────────────────────────────────── */
+        @media(max-width:760px) {
+            .s-card {
+                padding: 1.4rem 1.2rem;
+            }
+
+            .hero {
+                padding: 2.5rem 1.5rem 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- ═══ NAV ═══════════════════════════════════════════════════ -->
-<nav id="topnav">
-  <button class="nav-btn active" onclick="scrollTo('s-intro')">01 · ¿Qué es?</button>
-  <button class="nav-btn" onclick="scrollTo('s-complexity')">02 · Complejidad</button>
-  <button class="nav-btn" onclick="scrollTo('s-darts')">03 · Visualización</button>
-  <button class="nav-btn" onclick="scrollTo('s-steps')">04 · Pasos</button>
-  <button class="nav-btn" onclick="scrollTo('s-compare')">05 · RS vs GS</button>
-  <button class="nav-btn" onclick="scrollTo('s-cost')">06 · Big O Live</button>
-  <button class="nav-btn" onclick="scrollTo('s-sandbox')">07 · Sandbox</button>
-  <button class="nav-btn" onclick="scrollTo('s-quiz')">08 · Quiz</button>
-  <button id="theme-toggle" title="Cambiar tema" onclick="toggleTheme()">☀️</button>
-</nav>
+    <!-- ═══ NAV ═══════════════════════════════════════════════════ -->
+    <nav id="topnav">
+        <button class="nav-btn active" onclick="scrollTo('s-intro')">01 · ¿Qué es?</button>
+        <button class="nav-btn" onclick="scrollTo('s-complexity')">02 · Complejidad</button>
+        <button class="nav-btn" onclick="scrollTo('s-darts')">03 · Visualización</button>
+        <button class="nav-btn" onclick="scrollTo('s-steps')">04 · Pasos</button>
+        <button class="nav-btn" onclick="scrollTo('s-compare')">05 · RS vs GS</button>
+        <button class="nav-btn" onclick="scrollTo('s-cost')">06 · Big O Live</button>
+        <button class="nav-btn" onclick="scrollTo('s-sandbox')">07 · Sandbox</button>
+        <button class="nav-btn" onclick="scrollTo('s-quiz')">08 · Quiz</button>
+        <button id="theme-toggle" title="Cambiar tema" onclick="toggleTheme()">☀️</button>
+    </nav>
 
-<div class="container">
+    <div class="container">
 
-<!-- ═══ HERO ════════════════════════════════════════════════════ -->
-<div class="hero fade-up">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-badge">📡 CONFERENCIA · MACHINE LEARNING</div>
-  <h1>Random<br><span>Search</span></h1>
-  <p class="hero-sub">Cómo encontrar lo mejor sin probar todo — una estrategia inteligente de exploración para espacios de parámetros complejos.</p>
-  <div class="progress-bar"><div class="progress-fill" id="scrollProgress"></div></div>
-</div>
+        <!-- ═══ HERO ════════════════════════════════════════════════════ -->
+        <div class="hero fade-up">
+            <div class="hero-grid"></div>
+            <div class="hero-glow"></div>
+            <div class="hero-badge">📡 CONFERENCIA · MACHINE LEARNING</div>
+            <h1>Random<br><span>Search</span></h1>
+            <p class="hero-sub">Cómo encontrar lo mejor sin probar todo — una estrategia inteligente de exploración para
+                espacios de parámetros complejos.</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="scrollProgress"></div>
+            </div>
+        </div>
 
-<!-- ═══ 01 · QUÉ ES ══════════════════════════════════════════════ -->
-<section id="s-intro" class="s-card fade-up">
-  <div class="s-num">01 · Concepto Fundamental</div>
-  <div class="s-title">¿Qué es Random Search?</div>
-  <div class="s-desc">
-    En Machine Learning, un modelo tiene <strong>hiperparámetros</strong> — configuraciones que tú decides antes de entrenar: cuántos árboles, qué tan profundos, qué tasa de aprendizaje. El problema: hay miles de combinaciones posibles.<br><br>
-    <strong>Random Search</strong> es una estrategia que selecciona un subconjunto de esas combinaciones <em>de forma aleatoria</em> dentro del espacio definido, las evalúa, y elige la mejor. No busca todas las opciones — las <em>muestrea</em>.
-  </div>
-  <div class="formula">
-    <div class="formula-part">
-      <span class="formula-eq">Configuración = (p₁, p₂, …, pₘ)</span>
-      <span class="formula-label">Vector de hiperparámetros sampled aleatoriamente</span>
+        <!-- ═══ 01 · QUÉ ES ══════════════════════════════════════════════ -->
+        <section id="s-intro" class="s-card fade-up">
+            <div class="s-num">01 · Concepto Fundamental</div>
+            <div class="s-title">¿Qué es Random Search?</div>
+            <div class="s-desc">
+                En Machine Learning, un modelo tiene <strong>hiperparámetros</strong> — configuraciones que tú decides
+                antes de entrenar: cuántos árboles, qué tan profundos, qué tasa de aprendizaje. El problema: hay miles
+                de combinaciones posibles.<br><br>
+                <strong>Random Search</strong> es una estrategia que selecciona un subconjunto de esas combinaciones
+                <em>de forma aleatoria</em> dentro del espacio definido, las evalúa, y elige la mejor. No busca todas
+                las opciones — las <em>muestrea</em>.
+            </div>
+            <div class="formula">
+                <div class="formula-part">
+                    <span class="formula-eq">Configuración = (p₁, p₂, …, pₘ)</span>
+                    <span class="formula-label">Vector de hiperparámetros sampled aleatoriamente</span>
+                </div>
+                <div class="formula-part">
+                    <span class="formula-eq">k muestras → mejor resultado</span>
+                    <span class="formula-label">Solo k de las infinitas combinaciones posibles</span>
+                </div>
+            </div>
+            <div class="takeaway">
+                <span class="takeaway-icon">💡</span>
+                <div class="takeaway-text"><strong>Intuición clave:</strong> Según Bergstra & Bengio (2012), en espacios
+                    de alta dimensión Random Search es más eficiente que Grid Search porque los hiperparámetros no
+                    contribuyen por igual al rendimiento — algunos apenas importan.</div>
+            </div>
+        </section>
+
+        <!-- ═══ 02 · COMPLEJIDAD ══════════════════════════════════════════ -->
+        <section id="s-complexity" class="s-card fade-up">
+            <div class="s-num">02 · Complejidad Computacional</div>
+            <div class="s-title">O(n × C) — ¿Qué significa cada variable?</div>
+            <div class="s-desc">La complejidad de Random Search se expresa de forma simple y directa:</div>
+
+            <div class="formula" style="font-size:1.25rem;padding:1.4rem;">
+                <div class="formula-part">
+                    <span class="formula-eq" style="font-size:1.8rem;color:var(--orange);">O(n × C)</span>
+                    <span class="formula-label">Complejidad total de Random Search</span>
+                </div>
+            </div>
+
+            <div class="var-legend">
+                <div class="var-row">
+                    <span class="var-tag">n</span>
+                    <div class="var-def"><strong style="color:var(--txt);">Número de muestras aleatorias.</strong> Tú
+                        eliges cuántas combinaciones probar. Es lineal: doblas n → doblas el tiempo.</div>
+                </div>
+                <div class="var-row">
+                    <span class="var-tag">C</span>
+                    <div class="var-def"><strong style="color:var(--txt);">Costo de evaluar UNA configuración.</strong>
+                        Incluye entrenar el modelo + calcular la métrica (accuracy, F1, etc.). Depende del hardware y
+                        datos.</div>
+                </div>
+                <div class="var-row">
+                    <span class="var-tag">n×C</span>
+                    <div class="var-def"><strong style="color:var(--txt);">Costo total real.</strong> Si n=50 muestras y
+                        C=10 segundos/modelo → 500 segundos totales. Completamente predecible.</div>
+                </div>
+            </div>
+
+            <div style="margin-top:1.4rem;">
+                <div class="s-desc" style="margin-bottom:.5rem;"><strong>Comparado con Grid Search → O(gᵈ × C):</strong>
+                </div>
+                <div class="var-legend">
+                    <div class="var-row">
+                        <span class="var-tag" style="color:var(--accent);">g</span>
+                        <div class="var-def"><strong style="color:var(--txt);">Resolución de la grilla.</strong> Cuántos
+                            valores por hiperparámetro (ej: 5 valores de learning_rate).</div>
+                    </div>
+                    <div class="var-row">
+                        <span class="var-tag" style="color:var(--accent);">d</span>
+                        <div class="var-def"><strong style="color:var(--txt);">Dimensiones / número de
+                                hiperparámetros.</strong> Con 3 hiperparámetros y g=5 → 5³ = 125 combinaciones.</div>
+                    </div>
+                    <div class="var-row" style="border-color:rgba(248,113,113,.3);">
+                        <span class="var-tag" style="color:var(--red);">gᵈ</span>
+                        <div class="var-def"><strong style="color:var(--red);">Explosión combinatoria.</strong> d=5, g=5
+                            → 3,125 evaluaciones. d=10, g=5 → ¡9.7 millones!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparacion formula visual -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.2rem;">
+                <div
+                    style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.3);border-radius:var(--rad);padding:1rem;text-align:center;">
+                    <div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--orange);">O(n · C)
+                    </div>
+                    <div style="font-size:.8rem;color:var(--txt2);margin-top:.3rem;">Random Search</div>
+                    <div style="font-size:.78rem;color:var(--green);margin-top:.5rem;font-weight:600;">↑ LINEAL —
+                        Controlable</div>
+                </div>
+                <div
+                    style="background:rgba(79,156,249,.08);border:1px solid rgba(79,156,249,.3);border-radius:var(--rad);padding:1rem;text-align:center;">
+                    <div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--accent);">O(gᵈ · C)
+                    </div>
+                    <div style="font-size:.8rem;color:var(--txt2);margin-top:.3rem;">Grid Search</div>
+                    <div style="font-size:.78rem;color:var(--red);margin-top:.5rem;font-weight:600;">↑ EXPONENCIAL —
+                        Peligroso</div>
+                </div>
+            </div>
+            <div class="takeaway" style="margin-top:1.2rem;">
+                <span class="takeaway-icon">🎯</span>
+                <div class="takeaway-text"><strong>Conclusión:</strong> Random Search escala linealmente — tú controlas
+                    el presupuesto computacional con un solo número (n). Grid Search escala exponencialmente — se vuelve
+                    intratable con más de 4-5 hiperparámetros.</div>
+            </div>
+        </section>
+
+        <!-- ═══ 03 · DARDOS (VISUALIZACIÓN) ══════════════════════════════ -->
+        <section id="s-darts" class="s-card fade-up">
+            <div class="s-num">03 · Analogía Visual</div>
+            <div class="s-title">El Espacio de Búsqueda como Diana</div>
+            <div class="s-desc">El universo de todas las configuraciones posibles es como una diana enorme. Random
+                Search lanza <strong>n dardos al azar</strong>. Grid Search coloca dardos en una rejilla uniforme. Ambos
+                intentan acercarse al <strong>centro verde</strong> (configuración óptima).</div>
+            <div class="controls">
+                <span class="ctrl-label">Muestras n:</span>
+                <input type="range" min="3" max="30" value="10" id="darts_n" oninput="dartUpdate()">
+                <span class="ctrl-val" id="darts_nv">10</span>
+                <button class="btn" onclick="animDarts()">▶ Animar Random Search</button>
+                <button class="btn btn-ghost" onclick="animGrid()">Mostrar Grid Search</button>
+                <button class="btn btn-ghost btn-sm" onclick="clearDarts()">↺ Limpiar</button>
+            </div>
+            <div class="canvas-wrap">
+                <canvas id="c-darts" height="320"></canvas>
+                <div class="canvas-tooltip" id="tt-darts"></div>
+            </div>
+            <div class="legend">
+                <div class="leg-item">
+                    <div class="leg-dot" style="background:var(--orange)"></div>Random Search
+                </div>
+                <div class="leg-item">
+                    <div class="leg-dot" style="background:var(--accent)"></div>Grid Search
+                </div>
+                <div class="leg-item">
+                    <div class="leg-dot" style="background:var(--green)"></div>Óptimo real
+                </div>
+                <div class="leg-item">
+                    <div class="leg-dot" style="background:rgba(240,180,41,.4)"></div>Mejor encontrado
+                </div>
+            </div>
+            <div class="result-box" id="darts-result">Presiona ▶ Animar para ver Random Search en acción.</div>
+        </section>
+
+        <!-- ═══ 04 · PASOS (REFACTORED) ══════════════════════════════════ -->
+        <section id="s-steps" class="s-card fade-up">
+            <div class="s-num">04 · Algoritmo Paso a Paso</div>
+            <div class="s-title">Cómo funciona Random Search internamente</div>
+            <div class="s-desc">El algoritmo tiene <strong>4 etapas fundamentales</strong>. Recórrelas paso a paso para entender la lógica interna, la animación visual y la razón de cada fase. Ideal para presentaciones en vivo.</div>
+
+            <div class="steps-wrapper">
+                <!-- ── Stepper Progress Bar ── -->
+                <div class="stepper-bar" id="stepper-bar">
+                    <div class="stepper-dot" data-step="0" onclick="goStep(0)" title="Paso 1: Definir Espacio de Búsqueda">1</div>
+                    <div class="stepper-line" id="sline0"></div>
+                    <div class="stepper-dot" data-step="1" onclick="goStep(1)" title="Paso 2: Muestrear Aleatoriamente">2</div>
+                    <div class="stepper-line" id="sline1"></div>
+                    <div class="stepper-dot" data-step="2" onclick="goStep(2)" title="Paso 3: Evaluar Configuraciones">3</div>
+                    <div class="stepper-line" id="sline2"></div>
+                    <div class="stepper-dot" data-step="3" onclick="goStep(3)" title="Paso 4: Seleccionar la Mejor">4</div>
+                </div>
+
+                <!-- ── Step Buttons + Navigation ── -->
+                <div class="step-nav">
+                    <div class="step-arrows">
+                        <button class="arrow-btn" id="step-prev" onclick="stepPrev()" title="Paso anterior" disabled>◀</button>
+                    </div>
+                    <button class="step-btn" id="sbtn0" onclick="goStep(0)" title="Definir el espacio de hiperparámetros posibles">
+                        <span class="step-icon">📐</span><span>Espacio</span>
+                    </button>
+                    <button class="step-btn" id="sbtn1" onclick="goStep(1)" title="Muestrear: seleccionar opciones al azar del espacio">
+                        <span class="step-icon">🎲</span><span>Muestrear</span>
+                    </button>
+                    <button class="step-btn" id="sbtn2" onclick="goStep(2)" title="Evaluar: entrenar y medir el rendimiento de cada muestra">
+                        <span class="step-icon">📊</span><span>Evaluar</span>
+                    </button>
+                    <button class="step-btn" id="sbtn3" onclick="goStep(3)" title="Seleccionar: elegir la mejor configuración encontrada">
+                        <span class="step-icon">🏆</span><span>Seleccionar</span>
+                    </button>
+                    <div class="step-arrows">
+                        <button class="arrow-btn" id="step-next" onclick="stepNext()" title="Siguiente paso">▶</button>
+                    </div>
+                    <button class="auto-btn" id="auto-play-btn" onclick="autoSteps()" title="Reproducir automáticamente todos los pasos">
+                        <span id="auto-icon">▶</span> Auto
+                    </button>
+                </div>
+
+                <!-- ── Canvas (Large & Responsive) ── -->
+                <div class="steps-canvas-area" id="steps-canvas-area">
+                    <canvas id="c-steps" height="380"></canvas>
+                    <div class="steps-finish-overlay" id="steps-finish-overlay">
+                        <div style="font-size:3rem;margin-bottom:.5rem;">🏆✨</div>
+                        <div class="finish-title">¡Óptimo hallado!</div>
+                        <div class="finish-sub">Random Search completó las 4 etapas exitosamente</div>
+                        <button class="btn" style="margin-top:1.2rem;" onclick="goStep(0)">↺ Recorrer de nuevo</button>
+                    </div>
+                </div>
+
+                <!-- ── Explanation Panel ── -->
+                <div class="steps-explanation" id="steps-explanation">
+                    <div class="explanation-main">
+                        <div class="explanation-title" id="step-exp-title">
+                            <span class="step-badge">INICIO</span>
+                            Selecciona un paso para comenzar
+                        </div>
+                        <div class="explanation-body" id="step-exp-body">
+                            Haz clic en cualquier paso arriba o usa las flechas ◀ ▶ para recorrer las 4 etapas del algoritmo. Cada paso incluye una <b>animación visual</b>, una <b>explicación detallada</b> y una <b>analogía práctica</b>.
+                        </div>
+                        <div class="explanation-analogy" id="step-exp-analogy" style="display:none;">
+                            <span class="analogy-icon">🔧</span>
+                            <span id="step-analogy-text"></span>
+                        </div>
+                        <div class="explanation-key" id="step-exp-key" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- ── Technical Panel (Pseudocode + Stats) ── -->
+                <div class="steps-tech-panel" id="steps-tech-panel">
+                    <div class="tech-block" id="step-pseudocode">
+                        <div class="tech-block-title">💻 Pseudocódigo</div>
+                        <pre id="step-pseudo-content"><span class="cm">// Selecciona un paso para ver el código</span>
+<span class="kw">function</span> <span class="fn">randomSearch</span>(espacio, n) {
+  <span class="cm">// 4 etapas secuenciales...</span>
+}</pre>
+                    </div>
+                    <div class="tech-block" id="step-stats">
+                        <div class="tech-block-title">📈 Estadísticas del Paso</div>
+                        <div class="stats-grid" id="step-stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="stat-evaluated">—</div>
+                                <div class="stat-label">Evaluadas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="stat-total">∞</div>
+                                <div class="stat-label">Posibles</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="stat-complexity">—</div>
+                                <div class="stat-label">Complejidad</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="stat-step-num">0/4</div>
+                                <div class="stat-label">Progreso</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 05 · COMPARADOR RS vs GS ══════════════════════════════════ -->
+        <section id="s-compare" class="s-card fade-up">
+            <div class="s-num">05 · Comparación Directa</div>
+            <div class="s-title">Random Search vs Grid Search — Visual</div>
+            <div class="controls">
+                <span class="ctrl-label">Muestras RS (n):</span>
+                <input type="range" min="3" max="25" value="10" id="cmp_rs" oninput="runCompare()">
+                <span class="ctrl-val" id="cmp_rsv">10</span>
+                <span class="ctrl-label" style="margin-left:.5rem;">Grilla GS:</span>
+                <input type="range" min="2" max="9" value="5" id="cmp_gs" oninput="runCompare()">
+                <span class="ctrl-val" id="cmp_gsv">5</span>
+                <button class="btn" onclick="runCompare()">▶ Comparar</button>
+            </div>
+            <div class="split-canvases">
+                <div>
+                    <div class="split-title" style="color:var(--orange);">RANDOM SEARCH</div>
+                    <canvas id="c-rs" height="260"></canvas>
+                </div>
+                <div>
+                    <div class="split-title" style="color:var(--accent);">GRID SEARCH</div>
+                    <canvas id="c-gs" height="260"></canvas>
+                </div>
+            </div>
+            <div class="result-box" id="cmp-result"></div>
+
+            <!-- Tabla pros/contras -->
+            <table class="cmp-table" style="margin-top:1.8rem;">
+                <tr>
+                    <th></th>
+                    <th><span class="cmp-rs">⚡ Random Search</span></th>
+                    <th><span class="cmp-gs">⬛ Grid Search</span></th>
+                </tr>
+                <tr>
+                    <td><strong>Complejidad</strong></td>
+                    <td><span class="pill pill-g">O(n·C) Lineal</span></td>
+                    <td><span class="pill pill-r">O(gᵈ·C) Exponencial</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Control</strong></td>
+                    <td>Eliges exactamente cuántos intentos (n)</td>
+                    <td>El total depende de todos los parámetros</td>
+                </tr>
+                <tr>
+                    <td><strong>Convergencia</strong></td>
+                    <td>Probabilística — no garantiza óptimo absoluto</td>
+                    <td>Exhaustiva — encuentra el mejor de la grilla</td>
+                </tr>
+                <tr>
+                    <td><strong>Mejor para</strong></td>
+                    <td><span class="pill pill-g">Muchos hiperparámetros</span> <span class="pill pill-g">Recursos
+                            limitados</span> <span class="pill pill-g">Alta dimensionalidad</span></td>
+                    <td><span class="pill pill-g">≤3 hiperparámetros</span> <span class="pill pill-g">Precisión
+                            crítica</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Paralelizable</strong></td>
+                    <td><span class="pill pill-g">✓ Fácil — cada muestra es independiente</span></td>
+                    <td><span class="pill pill-g">✓ Posible, pero mayor overhead</span></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- ═══ 06 · BIG O LIVE ═══════════════════════════════════════════ -->
+        <section id="s-cost" class="s-card fade-up">
+            <div class="s-num">06 · Big O en Tiempo Real</div>
+            <div class="s-title">Crecimiento del Costo Computacional</div>
+            <div class="s-desc">Ajusta los sliders para ver cómo escala el costo. El gráfico de la izquierda (Random)
+                crece linealmente. El de la derecha (Grid) puede explotar exponencialmente.</div>
+            <div class="controls">
+                <span class="ctrl-label">Costo/modelo C (s):</span>
+                <input type="range" min="0.01" max="60" step=".5" value="5" id="cost_c" oninput="drawCosts()">
+                <span class="ctrl-val" id="cost_cv">5s</span>
+                <span class="ctrl-label" style="margin-left:.6rem;">Max n / g:</span>
+                <input type="range" min="5" max="200" value="50" id="cost_max" oninput="drawCosts()">
+                <span class="ctrl-val" id="cost_maxv">50</span>
+                <button class="btn btn-sm" onclick="drawCosts()">Actualizar</button>
+            </div>
+            <div class="split-canvases">
+                <div>
+                    <div class="split-title" style="color:var(--orange);">RANDOM SEARCH — O(n·C)</div>
+                    <canvas id="c-cost-rs" height="240"></canvas>
+                </div>
+                <div>
+                    <div class="split-title" style="color:var(--accent);">GRID SEARCH — O(gᵈ·C)</div>
+                    <canvas id="c-cost-gs" height="240"></canvas>
+                </div>
+            </div>
+            <div class="result-box" id="cost-result" style="margin-top:1rem;"></div>
+
+            <!-- Hardware recommender -->
+            <div style="margin-top:1.4rem;">
+                <div
+                    style="font-size:.85rem;color:var(--txt2);font-weight:600;margin-bottom:.5rem;letter-spacing:.04em;">
+                    HARDWARE RECOMENDADO PARA RANDOM SEARCH:</div>
+                <div class="hw-grid" id="hw-grid">
+                    <div class="hw-card" id="hw-laptop"><span class="hw-icon">💻</span><span
+                            class="hw-label">Laptop</span></div>
+                    <div class="hw-card" id="hw-pc"><span class="hw-icon">🖥️</span><span class="hw-label">PC
+                            16GB</span></div>
+                    <div class="hw-card" id="hw-ws"><span class="hw-icon">⚙️</span><span
+                            class="hw-label">Workstation</span></div>
+                    <div class="hw-card" id="hw-gpu"><span class="hw-icon">🎮</span><span class="hw-label">GPU
+                            Server</span></div>
+                    <div class="hw-card" id="hw-cloud"><span class="hw-icon">☁️</span><span class="hw-label">Cloud /
+                            HPC</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 07 · SANDBOX ══════════════════════════════════════════════ -->
+        <section id="s-sandbox" class="s-card fade-up">
+            <div class="s-num">07 · Sandbox Interactivo</div>
+            <div class="s-title">Simula tu propio Random Search</div>
+            <div class="s-desc">Define el espacio de hiperparámetros y el presupuesto. El sandbox simula el proceso y
+                muestra qué configuración habría ganado.</div>
+            <div class="sb-grid">
+                <div class="sb-param"><label>Rango de árboles (min - max)</label>
+                    <div style="display:flex;gap:.5rem;"><input type="number" id="sb_tmin" value="50" min="1"
+                            max="500"><input type="number" id="sb_tmax" value="400" min="1" max="1000"></div>
+                </div>
+                <div class="sb-param"><label>Profundidad máx (min - max)</label>
+                    <div style="display:flex;gap:.5rem;"><input type="number" id="sb_dmin" value="2" min="1"
+                            max="5"><input type="number" id="sb_dmax" value="12" min="2" max="30"></div>
+                </div>
+                <div class="sb-param"><label>Learning rate (min - max, ×0.01)</label>
+                    <div style="display:flex;gap:.5rem;"><input type="number" id="sb_lmin" value="1" min="1"
+                            max="10"><input type="number" id="sb_lmax" value="30" min="1" max="100"></div>
+                </div>
+                <div class="sb-param"><label>Presupuesto n (muestras)</label><input type="number" id="sb_n" value="20"
+                        min="3" max="200"></div>
+                <div style="grid-column:1/-1;display:flex;gap:.7rem;align-items:center;">
+                    <button class="btn" onclick="runSandbox()">▶ Ejecutar Simulación</button>
+                    <button class="btn btn-ghost btn-sm" onclick="resetSandbox()">↺ Reset</button>
+                </div>
+                <div class="sb-result" id="sb-result">Presiona Ejecutar para simular Random Search con tus parámetros.
+                </div>
+                <div class="canvas-wrap" style="grid-column:1/-1;">
+                    <canvas id="c-sandbox" height="220"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 08 · QUIZ ════════════════════════════════════════════════ -->
+        <section id="s-quiz" class="s-card fade-up">
+            <div class="s-num">08 · Quiz Rápido</div>
+            <div class="s-title">Pon a prueba la audiencia</div>
+            <div id="quiz-container"></div>
+            <div class="quiz-score" id="quiz-score" style="display:none;"></div>
+            <button class="btn btn-green" onclick="resetQuiz()" style="margin-top:1rem;display:none;"
+                id="quiz-reset-btn">↺ Reiniciar Quiz</button>
+        </section>
+
+    </div><!-- /container -->
+
+    <div class="footer">
+        <div style="font-family:var(--mono);font-size:.75rem;margin-bottom:.3rem;color:var(--accent);">RANDOM SEARCH ·
+            CONFERENCIA DE MACHINE LEARNING</div>
+        Presentación interactiva · Todos los derechos reservados
     </div>
-    <div class="formula-part">
-      <span class="formula-eq">k muestras → mejor resultado</span>
-      <span class="formula-label">Solo k de las infinitas combinaciones posibles</span>
-    </div>
-  </div>
-  <div class="takeaway">
-    <span class="takeaway-icon">💡</span>
-    <div class="takeaway-text"><strong>Intuición clave:</strong> Según Bergstra & Bengio (2012), en espacios de alta dimensión Random Search es más eficiente que Grid Search porque los hiperparámetros no contribuyen por igual al rendimiento — algunos apenas importan.</div>
-  </div>
-</section>
 
-<!-- ═══ 02 · COMPLEJIDAD ══════════════════════════════════════════ -->
-<section id="s-complexity" class="s-card fade-up">
-  <div class="s-num">02 · Complejidad Computacional</div>
-  <div class="s-title">O(n × C) — ¿Qué significa cada variable?</div>
-  <div class="s-desc">La complejidad de Random Search se expresa de forma simple y directa:</div>
-
-  <div class="formula" style="font-size:1.25rem;padding:1.4rem;">
-    <div class="formula-part">
-      <span class="formula-eq" style="font-size:1.8rem;color:var(--orange);">O(n × C)</span>
-      <span class="formula-label">Complejidad total de Random Search</span>
-    </div>
-  </div>
-
-  <div class="var-legend">
-    <div class="var-row">
-      <span class="var-tag">n</span>
-      <div class="var-def"><strong style="color:var(--txt);">Número de muestras aleatorias.</strong> Tú eliges cuántas combinaciones probar. Es lineal: doblas n → doblas el tiempo.</div>
-    </div>
-    <div class="var-row">
-      <span class="var-tag">C</span>
-      <div class="var-def"><strong style="color:var(--txt);">Costo de evaluar UNA configuración.</strong> Incluye entrenar el modelo + calcular la métrica (accuracy, F1, etc.). Depende del hardware y datos.</div>
-    </div>
-    <div class="var-row">
-      <span class="var-tag">n×C</span>
-      <div class="var-def"><strong style="color:var(--txt);">Costo total real.</strong> Si n=50 muestras y C=10 segundos/modelo → 500 segundos totales. Completamente predecible.</div>
-    </div>
-  </div>
-
-  <div style="margin-top:1.4rem;">
-    <div class="s-desc" style="margin-bottom:.5rem;"><strong>Comparado con Grid Search → O(gᵈ × C):</strong></div>
-    <div class="var-legend">
-      <div class="var-row">
-        <span class="var-tag" style="color:var(--accent);">g</span>
-        <div class="var-def"><strong style="color:var(--txt);">Resolución de la grilla.</strong> Cuántos valores por hiperparámetro (ej: 5 valores de learning_rate).</div>
-      </div>
-      <div class="var-row">
-        <span class="var-tag" style="color:var(--accent);">d</span>
-        <div class="var-def"><strong style="color:var(--txt);">Dimensiones / número de hiperparámetros.</strong> Con 3 hiperparámetros y g=5 → 5³ = 125 combinaciones.</div>
-      </div>
-      <div class="var-row" style="border-color:rgba(248,113,113,.3);">
-        <span class="var-tag" style="color:var(--red);">gᵈ</span>
-        <div class="var-def"><strong style="color:var(--red);">Explosión combinatoria.</strong> d=5, g=5 → 3,125 evaluaciones. d=10, g=5 → ¡9.7 millones!</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Comparacion formula visual -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.2rem;">
-    <div style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.3);border-radius:var(--rad);padding:1rem;text-align:center;">
-      <div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--orange);">O(n · C)</div>
-      <div style="font-size:.8rem;color:var(--txt2);margin-top:.3rem;">Random Search</div>
-      <div style="font-size:.78rem;color:var(--green);margin-top:.5rem;font-weight:600;">↑ LINEAL — Controlable</div>
-    </div>
-    <div style="background:rgba(79,156,249,.08);border:1px solid rgba(79,156,249,.3);border-radius:var(--rad);padding:1rem;text-align:center;">
-      <div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--accent);">O(gᵈ · C)</div>
-      <div style="font-size:.8rem;color:var(--txt2);margin-top:.3rem;">Grid Search</div>
-      <div style="font-size:.78rem;color:var(--red);margin-top:.5rem;font-weight:600;">↑ EXPONENCIAL — Peligroso</div>
-    </div>
-  </div>
-  <div class="takeaway" style="margin-top:1.2rem;">
-    <span class="takeaway-icon">🎯</span>
-    <div class="takeaway-text"><strong>Conclusión:</strong> Random Search escala linealmente — tú controlas el presupuesto computacional con un solo número (n). Grid Search escala exponencialmente — se vuelve intratable con más de 4-5 hiperparámetros.</div>
-  </div>
-</section>
-
-<!-- ═══ 03 · DARDOS (VISUALIZACIÓN) ══════════════════════════════ -->
-<section id="s-darts" class="s-card fade-up">
-  <div class="s-num">03 · Analogía Visual</div>
-  <div class="s-title">El Espacio de Búsqueda como Diana</div>
-  <div class="s-desc">El universo de todas las configuraciones posibles es como una diana enorme. Random Search lanza <strong>n dardos al azar</strong>. Grid Search coloca dardos en una rejilla uniforme. Ambos intentan acercarse al <strong>centro verde</strong> (configuración óptima).</div>
-  <div class="controls">
-    <span class="ctrl-label">Muestras n:</span>
-    <input type="range" min="3" max="30" value="10" id="darts_n" oninput="dartUpdate()">
-    <span class="ctrl-val" id="darts_nv">10</span>
-    <button class="btn" onclick="animDarts()">▶ Animar Random Search</button>
-    <button class="btn btn-ghost" onclick="animGrid()">Mostrar Grid Search</button>
-    <button class="btn btn-ghost btn-sm" onclick="clearDarts()">↺ Limpiar</button>
-  </div>
-  <div class="canvas-wrap">
-    <canvas id="c-darts" height="320"></canvas>
-    <div class="canvas-tooltip" id="tt-darts"></div>
-  </div>
-  <div class="legend">
-    <div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div>Random Search</div>
-    <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div>Grid Search</div>
-    <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Óptimo real</div>
-    <div class="leg-item"><div class="leg-dot" style="background:rgba(240,180,41,.4)"></div>Mejor encontrado</div>
-  </div>
-  <div class="result-box" id="darts-result">Presiona ▶ Animar para ver Random Search en acción.</div>
-</section>
-
-<!-- ═══ 04 · PASOS ════════════════════════════════════════════════ -->
-<section id="s-steps" class="s-card fade-up">
-  <div class="s-num">04 · Algoritmo Paso a Paso</div>
-  <div class="s-title">Cómo funciona Random Search internamente</div>
-  <div class="s-desc">El algoritmo tiene 4 etapas fundamentales. Usa los botones para recorrerlas y ver la animación correspondiente.</div>
-  <div class="step-nav">
-    <button class="btn btn-ghost" id="sbtn0" onclick="goStep(0)">1 · Espacio</button>
-    <button class="btn btn-ghost" id="sbtn1" onclick="goStep(1)">2 · Muestrear</button>
-    <button class="btn btn-ghost" id="sbtn2" onclick="goStep(2)">3 · Evaluar</button>
-    <button class="btn btn-ghost" id="sbtn3" onclick="goStep(3)">4 · Seleccionar</button>
-    <button class="btn btn-sm" onclick="autoSteps()">▶ Auto</button>
-  </div>
-  <div class="canvas-wrap" style="margin-top:1rem;">
-    <canvas id="c-steps" height="200"></canvas>
-  </div>
-  <div class="result-box" id="steps-result" style="font-size:.9rem;">Selecciona un paso para ver la explicación detallada.</div>
-</section>
-
-<!-- ═══ 05 · COMPARADOR RS vs GS ══════════════════════════════════ -->
-<section id="s-compare" class="s-card fade-up">
-  <div class="s-num">05 · Comparación Directa</div>
-  <div class="s-title">Random Search vs Grid Search — Visual</div>
-  <div class="controls">
-    <span class="ctrl-label">Muestras RS (n):</span>
-    <input type="range" min="3" max="25" value="10" id="cmp_rs" oninput="runCompare()">
-    <span class="ctrl-val" id="cmp_rsv">10</span>
-    <span class="ctrl-label" style="margin-left:.5rem;">Grilla GS:</span>
-    <input type="range" min="2" max="9" value="5" id="cmp_gs" oninput="runCompare()">
-    <span class="ctrl-val" id="cmp_gsv">5</span>
-    <button class="btn" onclick="runCompare()">▶ Comparar</button>
-  </div>
-  <div class="split-canvases">
-    <div>
-      <div class="split-title" style="color:var(--orange);">RANDOM SEARCH</div>
-      <canvas id="c-rs" height="260"></canvas>
-    </div>
-    <div>
-      <div class="split-title" style="color:var(--accent);">GRID SEARCH</div>
-      <canvas id="c-gs" height="260"></canvas>
-    </div>
-  </div>
-  <div class="result-box" id="cmp-result"></div>
-
-  <!-- Tabla pros/contras -->
-  <table class="cmp-table" style="margin-top:1.8rem;">
-    <tr><th></th><th><span class="cmp-rs">⚡ Random Search</span></th><th><span class="cmp-gs">⬛ Grid Search</span></th></tr>
-    <tr>
-      <td><strong>Complejidad</strong></td>
-      <td><span class="pill pill-g">O(n·C) Lineal</span></td>
-      <td><span class="pill pill-r">O(gᵈ·C) Exponencial</span></td>
-    </tr>
-    <tr>
-      <td><strong>Control</strong></td>
-      <td>Eliges exactamente cuántos intentos (n)</td>
-      <td>El total depende de todos los parámetros</td>
-    </tr>
-    <tr>
-      <td><strong>Convergencia</strong></td>
-      <td>Probabilística — no garantiza óptimo absoluto</td>
-      <td>Exhaustiva — encuentra el mejor de la grilla</td>
-    </tr>
-    <tr>
-      <td><strong>Mejor para</strong></td>
-      <td><span class="pill pill-g">Muchos hiperparámetros</span> <span class="pill pill-g">Recursos limitados</span> <span class="pill pill-g">Alta dimensionalidad</span></td>
-      <td><span class="pill pill-g">≤3 hiperparámetros</span> <span class="pill pill-g">Precisión crítica</span></td>
-    </tr>
-    <tr>
-      <td><strong>Paralelizable</strong></td>
-      <td><span class="pill pill-g">✓ Fácil — cada muestra es independiente</span></td>
-      <td><span class="pill pill-g">✓ Posible, pero mayor overhead</span></td>
-    </tr>
-  </table>
-</section>
-
-<!-- ═══ 06 · BIG O LIVE ═══════════════════════════════════════════ -->
-<section id="s-cost" class="s-card fade-up">
-  <div class="s-num">06 · Big O en Tiempo Real</div>
-  <div class="s-title">Crecimiento del Costo Computacional</div>
-  <div class="s-desc">Ajusta los sliders para ver cómo escala el costo. El gráfico de la izquierda (Random) crece linealmente. El de la derecha (Grid) puede explotar exponencialmente.</div>
-  <div class="controls">
-    <span class="ctrl-label">Costo/modelo C (s):</span>
-    <input type="range" min="0.01" max="60" step=".5" value="5" id="cost_c" oninput="drawCosts()">
-    <span class="ctrl-val" id="cost_cv">5s</span>
-    <span class="ctrl-label" style="margin-left:.6rem;">Max n / g:</span>
-    <input type="range" min="5" max="200" value="50" id="cost_max" oninput="drawCosts()">
-    <span class="ctrl-val" id="cost_maxv">50</span>
-    <button class="btn btn-sm" onclick="drawCosts()">Actualizar</button>
-  </div>
-  <div class="split-canvases">
-    <div>
-      <div class="split-title" style="color:var(--orange);">RANDOM SEARCH — O(n·C)</div>
-      <canvas id="c-cost-rs" height="240"></canvas>
-    </div>
-    <div>
-      <div class="split-title" style="color:var(--accent);">GRID SEARCH — O(gᵈ·C)</div>
-      <canvas id="c-cost-gs" height="240"></canvas>
-    </div>
-  </div>
-  <div class="result-box" id="cost-result" style="margin-top:1rem;"></div>
-
-  <!-- Hardware recommender -->
-  <div style="margin-top:1.4rem;">
-    <div style="font-size:.85rem;color:var(--txt2);font-weight:600;margin-bottom:.5rem;letter-spacing:.04em;">HARDWARE RECOMENDADO PARA RANDOM SEARCH:</div>
-    <div class="hw-grid" id="hw-grid">
-      <div class="hw-card" id="hw-laptop"><span class="hw-icon">💻</span><span class="hw-label">Laptop</span></div>
-      <div class="hw-card" id="hw-pc"><span class="hw-icon">🖥️</span><span class="hw-label">PC 16GB</span></div>
-      <div class="hw-card" id="hw-ws"><span class="hw-icon">⚙️</span><span class="hw-label">Workstation</span></div>
-      <div class="hw-card" id="hw-gpu"><span class="hw-icon">🎮</span><span class="hw-label">GPU Server</span></div>
-      <div class="hw-card" id="hw-cloud"><span class="hw-icon">☁️</span><span class="hw-label">Cloud / HPC</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ 07 · SANDBOX ══════════════════════════════════════════════ -->
-<section id="s-sandbox" class="s-card fade-up">
-  <div class="s-num">07 · Sandbox Interactivo</div>
-  <div class="s-title">Simula tu propio Random Search</div>
-  <div class="s-desc">Define el espacio de hiperparámetros y el presupuesto. El sandbox simula el proceso y muestra qué configuración habría ganado.</div>
-  <div class="sb-grid">
-    <div class="sb-param"><label>Rango de árboles (min - max)</label><div style="display:flex;gap:.5rem;"><input type="number" id="sb_tmin" value="50" min="1" max="500"><input type="number" id="sb_tmax" value="400" min="1" max="1000"></div></div>
-    <div class="sb-param"><label>Profundidad máx (min - max)</label><div style="display:flex;gap:.5rem;"><input type="number" id="sb_dmin" value="2" min="1" max="5"><input type="number" id="sb_dmax" value="12" min="2" max="30"></div></div>
-    <div class="sb-param"><label>Learning rate (min - max, ×0.01)</label><div style="display:flex;gap:.5rem;"><input type="number" id="sb_lmin" value="1" min="1" max="10"><input type="number" id="sb_lmax" value="30" min="1" max="100"></div></div>
-    <div class="sb-param"><label>Presupuesto n (muestras)</label><input type="number" id="sb_n" value="20" min="3" max="200"></div>
-    <div style="grid-column:1/-1;display:flex;gap:.7rem;align-items:center;">
-      <button class="btn" onclick="runSandbox()">▶ Ejecutar Simulación</button>
-      <button class="btn btn-ghost btn-sm" onclick="resetSandbox()">↺ Reset</button>
-    </div>
-    <div class="sb-result" id="sb-result">Presiona Ejecutar para simular Random Search con tus parámetros.</div>
-    <div class="canvas-wrap" style="grid-column:1/-1;">
-      <canvas id="c-sandbox" height="220"></canvas>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ 08 · QUIZ ════════════════════════════════════════════════ -->
-<section id="s-quiz" class="s-card fade-up">
-  <div class="s-num">08 · Quiz Rápido</div>
-  <div class="s-title">Pon a prueba la audiencia</div>
-  <div id="quiz-container"></div>
-  <div class="quiz-score" id="quiz-score" style="display:none;"></div>
-  <button class="btn btn-green" onclick="resetQuiz()" style="margin-top:1rem;display:none;" id="quiz-reset-btn">↺ Reiniciar Quiz</button>
-</section>
-
-</div><!-- /container -->
-
-<div class="footer">
-  <div style="font-family:var(--mono);font-size:.75rem;margin-bottom:.3rem;color:var(--accent);">RANDOM SEARCH · CONFERENCIA DE MACHINE LEARNING</div>
-  Presentación interactiva · Todos los derechos reservados
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════
      JAVASCRIPT
 ═══════════════════════════════════════════════════════════════ -->
-<script>
-// ── UTILS ─────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const rnd = (a,b) => a + Math.random()*(b-a);
-const rndInt = (a,b) => Math.floor(rnd(a,b+1));
+    <script>
+        // ── UTILS ─────────────────────────────────────────────────────────
+        const $ = id => document.getElementById(id);
+        const rnd = (a, b) => a + Math.random() * (b - a);
+        const rndInt = (a, b) => Math.floor(rnd(a, b + 1));
 
-function scrollTo(id){
-  const el = $(id);
-  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-}
+        function scrollTo(id) {
+            const el = $(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
 
-function toggleTheme(){
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme')==='dark';
-  html.setAttribute('data-theme', isDark?'light':'dark');
-  $('theme-toggle').textContent = isDark ? '🌙' : '☀️';
-  // redraw all canvases
-  setTimeout(()=>{ animDartsInit(); runCompare(); drawCosts(); }, 100);
-}
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            $('theme-toggle').textContent = isDark ? '🌙' : '☀️';
+            // redraw all canvases
+            setTimeout(() => { animDartsInit(); runCompare(); drawCosts(); }, 100);
+        }
 
-// ── PROGRESS BAR + NAV ACTIVE ─────────────────────────────────────
-window.addEventListener('scroll', ()=>{
-  const h = document.documentElement.scrollHeight - window.innerHeight;
-  $('scrollProgress').style.width = (window.scrollY/h*100)+'%';
-  // nav active
-  const sections = ['s-intro','s-complexity','s-darts','s-steps','s-compare','s-cost','s-sandbox','s-quiz'];
-  let cur = 0;
-  sections.forEach((id,i)=>{
-    const el=$(id);
-    if(el && window.scrollY >= el.offsetTop - 120) cur = i;
+        // ── PROGRESS BAR + NAV ACTIVE ─────────────────────────────────────
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            $('scrollProgress').style.width = (window.scrollY / h * 100) + '%';
+            // nav active
+            const sections = ['s-intro', 's-complexity', 's-darts', 's-steps', 's-compare', 's-cost', 's-sandbox', 's-quiz'];
+            let cur = 0;
+            sections.forEach((id, i) => {
+                const el = $(id);
+                if (el && window.scrollY >= el.offsetTop - 120) cur = i;
+            });
+            document.querySelectorAll('.nav-btn').forEach((b, i) => {
+                b.classList.toggle('active', i === cur);
+            });
+        });
+
+        // ── CANVAS HELPERS ─────────────────────────────────────────────────
+        function getCtx(id) {
+            const c = $(id);
+            if (!c) return null;
+            c.width = c.offsetWidth || c.parentElement.offsetWidth || 600;
+            return { c, ctx: c.getContext('2d'), W: c.width, H: c.height };
+        }
+
+        function getColors() {
+            const s = getComputedStyle(document.documentElement);
+            return {
+                bg: s.getPropertyValue('--bg3').trim(),
+                card: s.getPropertyValue('--card').trim(),
+                border: s.getPropertyValue('--border').trim(),
+                txt: s.getPropertyValue('--txt').trim(),
+                txt2: s.getPropertyValue('--txt2').trim(),
+                orange: s.getPropertyValue('--orange').trim(),
+                accent: s.getPropertyValue('--accent').trim(),
+                green: s.getPropertyValue('--green').trim(),
+                gold: s.getPropertyValue('--gold').trim(),
+                red: s.getPropertyValue('--red').trim(),
+            };
+        }
+
+        function drawAxis(ctx, ox, oy, W, H, col, labelX = '', labelY = '') {
+            ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(W - 20, oy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox, H * .08); ctx.stroke();
+            ctx.fillStyle = col; ctx.font = '11px Space Grotesk'; ctx.textAlign = 'center';
+            if (labelX) ctx.fillText(labelX, (ox + W - 20) / 2, oy + 20);
+            ctx.save(); ctx.translate(ox - 22, (oy + H * .08) / 2); ctx.rotate(-Math.PI / 2);
+            if (labelY) ctx.fillText(labelY, 0, 0);
+            ctx.restore();
+        }
+
+        // ══ 03 DARTS ══════════════════════════════════════════════════════
+        let dartsPoints = [], dartsGridPts = [], optX = 0, optY = 0, dartsAnim = null;
+
+        function dartUpdate() {
+            $('darts_nv').textContent = $('darts_n').value;
+        }
+
+        function clearDarts() {
+            dartsPoints = []; dartsGridPts = [];
+            if (dartsAnim) clearInterval(dartsAnim);
+            animDartsInit();
+            $('darts-result').innerHTML = 'Lienzo limpio. Vuelve a animar.';
+        }
+
+        function animDartsInit() {
+            const { c, ctx, W, H } = getCtx('c-darts');
+            const col = getColors();
+            ctx.clearRect(0, 0, W, H);
+            // background
+            ctx.fillStyle = col.card; ctx.fillRect(0, 0, W, H);
+            // grid dots
+            for (let x = 40; x < W - 20; x += 40) for (let y = 30; y < H - 20; y += 40) {
+                ctx.beginPath(); ctx.arc(x, y, 1.5, 0, 2 * Math.PI);
+                ctx.fillStyle = col.border; ctx.fill();
+            }
+            // target rings
+            const cx = W / 2, cy = H / 2 + 10;
+            optX = cx + rnd(-50, 50); optY = cy + rnd(-45, 45);
+            [100, 72, 50, 30, 14].forEach((r, i) => {
+                ctx.beginPath(); ctx.arc(cx, cy, r * (W / 520), 0, 2 * Math.PI);
+                ctx.strokeStyle = i === 0 ? col.border : col.border;
+                ctx.lineWidth = i === 0 ? 2 : 1;
+                ctx.setLineDash([i > 0 ? 4 : 0, i > 0 ? 3 : 0]);
+                ctx.stroke(); ctx.setLineDash([]);
+            });
+            // optimal
+            ctx.beginPath(); ctx.arc(optX, optY, 10 * (W / 520), 0, 2 * Math.PI);
+            ctx.fillStyle = col.green + '55'; ctx.fill();
+            ctx.beginPath(); ctx.arc(optX, optY, 5 * (W / 520), 0, 2 * Math.PI);
+            ctx.fillStyle = col.green; ctx.fill();
+            ctx.fillStyle = col.green; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'left';
+            ctx.fillText('θ* óptimo', optX + 12 * (W / 520), optY + 4);
+            // label
+            ctx.fillStyle = col.txt2; ctx.font = '12px Space Grotesk'; ctx.textAlign = 'center';
+            ctx.fillText('Espacio de hiperparámetros Θ', W / 2, 18);
+        }
+
+        function animDarts() {
+            animDartsInit();
+            const n = +$('darts_n').value;
+            const { c, ctx, W, H } = getCtx('c-darts');
+            const col = getColors();
+            const cx = W / 2, cy = H / 2 + 10, R = 100 * (W / 520);
+            dartsPoints = [];
+            for (let i = 0; i < n; i++) {
+                const ang = rnd(0, 2 * Math.PI), r = rnd(5, R * 1.05);
+                dartsPoints.push({ x: cx + Math.cos(ang) * r, y: cy + Math.sin(ang) * r, score: rnd(.55, .98) });
+            }
+            let bestIdx = dartsPoints.reduce((b, p, i) => p.score > dartsPoints[b].score ? i : b, 0);
+            let i = 0;
+            animDartsInit();
+            dartsAnim = setInterval(() => {
+                if (i >= n) {
+                    clearInterval(dartsAnim);
+                    // draw best highlight
+                    const p = dartsPoints[bestIdx];
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 14 * (W / 520), 0, 2 * Math.PI);
+                    ctx.strokeStyle = col.gold; ctx.lineWidth = 3; ctx.stroke();
+                    ctx.fillStyle = col.gold; ctx.font = 'bold 11px JetBrains Mono';
+                    ctx.textAlign = 'left'; ctx.fillText('Mejor: ' + p.score.toFixed(3), p.x + 16, p.y + 4);
+                    const dist = Math.sqrt((p.x - optX) ** 2 + (p.y - optY) ** 2);
+                    $('darts-result').innerHTML = `<b>Resultado RS (n=${n}):</b> Mejor accuracy encontrado = <b style="color:var(--green)">${p.score.toFixed(4)}</b> | Distancia al óptimo real: <b>${dist.toFixed(1)}px equiv.</b><br>Random Search exploró <b>${n}</b> de ~∞ combinaciones posibles.`;
+                    return;
+                }
+                const p = dartsPoints[i];
+                ctx.beginPath(); ctx.arc(p.x, p.y, 9 * (W / 520), 0, 2 * Math.PI);
+                ctx.fillStyle = col.orange + 'cc'; ctx.fill();
+                ctx.fillStyle = col.orange + '44'; ctx.lineWidth = 2; ctx.strokeStyle = col.orange; ctx.stroke();
+                ctx.fillStyle = col.txt2; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'center';
+                ctx.fillText((i + 1), p.x, p.y + 4);
+                i++;
+            }, 90);
+        }
+
+        function animGrid() {
+            animDartsInit();
+            const { c, ctx, W, H } = getCtx('c-darts');
+            const col = getColors();
+            const g = +$('cmp_gs').value || 5;
+            dartsGridPts = [];
+            const ox = W * .1, oy = H * .85, rw = W * .8, rh = H * .72;
+            let i = 0;
+            const pts = [];
+            for (let gx = 0; gx < g; gx++) for (let gy = 0; gy < g; gy++) {
+                pts.push({ x: ox + gx * rw / (g - 1), y: oy - gy * rh / (g - 1) });
+            }
+            dartsAnim = setInterval(() => {
+                if (i >= pts.length) {
+                    clearInterval(dartsAnim);
+                    $('darts-result').innerHTML = `<b>Grid Search (g=${g}, d=2):</b> Evaluó <b style="color:var(--accent)">${g * g} combinaciones</b> en cuadrícula uniforme. RS con n=${$('darts_n').value} usaría solo <b>${$('darts_n').value}</b> evaluaciones.`;
+                    return;
+                }
+                const p = pts[i];
+                ctx.beginPath(); ctx.arc(p.x, p.y, 7 * (W / 520), 0, 2 * Math.PI);
+                ctx.fillStyle = col.accent + '99'; ctx.fill();
+                ctx.strokeStyle = col.accent; ctx.lineWidth = 1.2; ctx.stroke();
+                i++;
+            }, 40);
+        }
+
+                // ══ 04 STEPS (REFACTORED) ═══════════════════════════════════════
+        let currentStep = -1;
+        let autoInt = null;
+        let stepAnimFrames = [];
+
+        // Sound effects (subtle)
+        const StepSounds = {
+            ctx: null,
+            init() { if (!this.ctx) try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} },
+            play(freq, dur, type='sine') {
+                this.init(); if (!this.ctx) return;
+                const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                o.type = type; o.frequency.value = freq;
+                g.gain.setValueAtTime(0.06, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+                o.connect(g); g.connect(this.ctx.destination);
+                o.start(); o.stop(this.ctx.currentTime + dur);
+            },
+            tick() { this.play(880, 0.08); },
+            ding() { this.play(1200, 0.15); },
+            success() { this.play(523, 0.12); setTimeout(() => this.play(659, 0.12), 100); setTimeout(() => this.play(784, 0.2), 200); },
+            swish() { this.play(300, 0.06, 'triangle'); }
+        };
+
+        const stepData = [
+            {
+                title: 'Definir el Espacio de Búsqueda',
+                icon: '📐',
+                desc: `<b>Definimos los rangos posibles</b> de cada hiperparámetro. Ej: <span class="highlight">n_estimators ∈ [50, 500]</span>, <span class="highlight">max_depth ∈ [2, 15]</span>, <span class="highlight">lr ∈ [0.001, 0.3]</span>. Este "cajón" multidimensional es de donde muestrearemos — <b>nunca exploraremos todo</b>.`,
+                analogy: 'En el taller, este sería el momento donde defines las "perillas" que puedes girar y sus límites: como elegir qué ingredientes y cantidades están disponibles antes de cocinar.',
+                keyPoint: '💡 Aquí NO se evalúa nada. Solo se delimitan los límites del universo de opciones.',
+                pseudo: `<span class="cm">// Paso 1: Definir espacio Θ</span>
+<span class="kw">const</span> espacio = {
+  <span class="st">n_estimators</span>: [<span class="nb">50</span>, <span class="nb">500</span>],
+  <span class="st">max_depth</span>:    [<span class="nb">2</span>,  <span class="nb">15</span>],
+  <span class="st">learning_rate</span>:[<span class="nb">.001</span>,<span class="nb">.3</span>]
+};`,
+                stats: { evaluated: '0', total: '∞', complexity: 'O(d)', step: '1/4' },
+                draw(ctx, W, H, col, anim) {
+                    ctx.fillStyle = col.bg; ctx.fillRect(0, 0, W, H);
+                    // Title
+                    ctx.fillStyle = col.txt2; ctx.font = 'bold 14px Space Grotesk'; ctx.textAlign = 'center';
+                    ctx.fillText('ESPACIO DE BÚSQUEDA Θ', W / 2, 30);
+                    // Grid background
+                    const gx1 = W * .08, gy1 = 50, gx2 = W * .92, gy2 = H - 60;
+                    ctx.strokeStyle = col.border; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+                    for (let x = gx1; x <= gx2; x += (gx2-gx1)/8) { ctx.beginPath(); ctx.moveTo(x, gy1); ctx.lineTo(x, gy2); ctx.stroke(); }
+                    for (let y = gy1; y <= gy2; y += (gy2-gy1)/6) { ctx.beginPath(); ctx.moveTo(gx1, y); ctx.lineTo(gx2, y); ctx.stroke(); }
+                    ctx.setLineDash([]);
+                    // Param bars
+                    const params = [
+                        ['n_estimators', 50, 500, col.accent],
+                        ['max_depth', 2, 15, '#a78bfa'],
+                        ['learning_rate', 0.001, 0.3, col.orange]
+                    ];
+                    const barH = Math.min(40, (gy2 - gy1 - 40) / 3);
+                    params.forEach(([name, min, max, color], i) => {
+                        const y = gy1 + 20 + i * (barH + 16);
+                        const barX = W * .32, barW = W * .56;
+                        // Bar background
+                        ctx.fillStyle = color + '15';
+                        ctx.beginPath(); ctx.roundRect(barX, y, barW, barH, 8); ctx.fill();
+                        // Animated fill
+                        const fillW = anim ? barW * Math.min(1, anim * 1.5 - i * 0.3) : barW;
+                        if (fillW > 0) {
+                            const grad = ctx.createLinearGradient(barX, y, barX + fillW, y);
+                            grad.addColorStop(0, color + '88'); grad.addColorStop(1, color + 'cc');
+                            ctx.fillStyle = grad;
+                            ctx.beginPath(); ctx.roundRect(barX, y, Math.max(0, fillW), barH, 8); ctx.fill();
+                        }
+                        // Border
+                        ctx.strokeStyle = color + '66'; ctx.lineWidth = 1.5;
+                        ctx.beginPath(); ctx.roundRect(barX, y, barW, barH, 8); ctx.stroke();
+                        // Label
+                        ctx.fillStyle = col.txt; ctx.font = 'bold 12px Space Grotesk'; ctx.textAlign = 'right';
+                        ctx.fillText(name, barX - 10, y + barH/2 + 4);
+                        // Range
+                        ctx.fillStyle = '#fff'; ctx.font = 'bold 12px JetBrains Mono'; ctx.textAlign = 'center';
+                        ctx.fillText(`${min} ────── ${max}`, barX + barW/2, y + barH/2 + 4);
+                    });
+                    // Bottom label
+                    ctx.fillStyle = col.gold; ctx.font = 'bold 14px Space Grotesk'; ctx.textAlign = 'center';
+                    ctx.fillText('Θ = { (p₁, p₂, p₃) | pᵢ ∈ [min, max] } ✓', W / 2, H - 20);
+                }
+            },
+            {
+                title: 'Muestrear Aleatoriamente',
+                icon: '🎲',
+                desc: `<b>Se toman n muestras aleatorias</b> de forma uniforme del espacio Θ. Cada muestra es un vector de hiperparámetros <span class="highlight">θᵢ = (n_est, depth, lr)</span>. Aquí solo se prueban <b>algunos puntos al azar, no todos</b>.`,
+                analogy: 'En el taller, es como cerrar los ojos y señalar puntos al azar en un mapa enorme. No recorres cada calle — solo visitas lugares aleatorios esperando encontrar uno bueno.',
+                keyPoint: '🎯 Se generan n vectores aleatorios. Cada uno es una "receta" diferente de hiperparámetros.',
+                pseudo: `<span class="cm">// Paso 2: Muestrear n configs</span>
+<span class="kw">const</span> muestras = [];
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="nb">0</span>; i < <span class="nb">n</span>; i++) {
+  muestras.<span class="fn">push</span>({
+    <span class="st">n_est</span>: <span class="fn">randInt</span>(<span class="nb">50</span>,<span class="nb">500</span>),
+    <span class="st">depth</span>: <span class="fn">randInt</span>(<span class="nb">2</span>,<span class="nb">15</span>),
+    <span class="st">lr</span>:    <span class="fn">randFloat</span>(<span class="nb">.001</span>,<span class="nb">.3</span>)
   });
-  document.querySelectorAll('.nav-btn').forEach((b,i)=>{
-    b.classList.toggle('active', i===cur);
-  });
-});
+}`,
+                stats: { evaluated: '8', total: '~67,500', complexity: 'O(n)', step: '2/4' },
+                draw(ctx, W, H, col, anim) {
+                    ctx.fillStyle = col.bg; ctx.fillRect(0, 0, W, H);
+                    ctx.fillStyle = col.txt2; ctx.font = 'bold 14px Space Grotesk'; ctx.textAlign = 'center';
+                    ctx.fillText('MUESTREO ALEATORIO', W / 2, 30);
+                    // Grid
+                    const gx1 = W*.06, gy1 = 45, gx2 = W*.94, gy2 = H - 50;
+                    ctx.strokeStyle = col.border + '55'; ctx.lineWidth = 0.5;
+                    for (let x = gx1; x <= gx2; x += 30) { ctx.beginPath(); ctx.moveTo(x, gy1); ctx.lineTo(x, gy2); ctx.stroke(); }
+                    for (let y = gy1; y <= gy2; y += 30) { ctx.beginPath(); ctx.moveTo(gx1, y); ctx.lineTo(gx2, y); ctx.stroke(); }
+                    // Sample points with animation
+                    const n = 8;
+                    const seed = 42;
+                    const pts = [];
+                    for (let i = 0; i < n; i++) {
+                        const px = gx1 + 20 + ((seed * (i+1) * 7) % 100) / 100 * (gx2 - gx1 - 40);
+                        const py = gy1 + 20 + ((seed * (i+1) * 13 + 37) % 100) / 100 * (gy2 - gy1 - 40);
+                        pts.push({x: px, y: py});
+                    }
+                    const visibleCount = anim ? Math.floor(anim * n * 1.2) : n;
+                    pts.forEach((p, i) => {
+                        if (i >= visibleCount) return;
+                        const r = 14;
+                        // Glow
+                        ctx.beginPath(); ctx.arc(p.x, p.y, r + 6, 0, 2 * Math.PI);
+                        ctx.fillStyle = col.orange + '22'; ctx.fill();
+                        // Point
+                        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+                        const grad = ctx.createRadialGradient(p.x-3, p.y-3, 0, p.x, p.y, r);
+                        grad.addColorStop(0, col.orange); grad.addColorStop(1, col.orange + 'aa');
+                        ctx.fillStyle = grad; ctx.fill();
+                        ctx.strokeStyle = col.orange; ctx.lineWidth = 2; ctx.stroke();
+                        // Label
+                        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'center';
+                        ctx.fillText('θ' + (i + 1), p.x, p.y + 4);
+                    });
+                    ctx.fillStyle = col.orange; ctx.font = 'bold 13px Space Grotesk'; ctx.textAlign = 'center';
+                    ctx.fillText(`${Math.min(visibleCount, n)} / ${n} configuraciones muestreadas al azar`, W / 2, H - 16);
+                }
+            },
+            {
+                title: 'Evaluar cada Configuración',
+                icon: '📊',
+                desc: `Para cada θᵢ muestreado: <b>entrenar el modelo</b> con esos hiperparámetros, luego <b>evaluar</b> con cross-validation. Se obtiene una métrica (accuracy, AUC, F1...). Costo total = <span class="highlight">n × C</span>.`,
+                analogy: 'En el taller, es como probar cada receta y calificarla del 1 al 10. Cada prueba toma tiempo (C), y haces n pruebas — el costo es predecible.',
+                keyPoint: '⏱️ Este es el paso más costoso. Cada evaluación entrena un modelo completo.',
+                pseudo: `<span class="cm">// Paso 3: Evaluar</span>
+<span class="kw">const</span> scores = [];
+<span class="kw">for</span> (<span class="kw">const</span> θ <span class="kw">of</span> muestras) {
+  <span class="kw">const</span> modelo = <span class="fn">entrenar</span>(θ);
+  <span class="kw">const</span> score = <span class="fn">crossVal</span>(modelo);
+  scores.<span class="fn">push</span>({ θ, score });
+} <span class="cm">// Costo: n × C</span>`,
+                stats: { evaluated: '8', total: '~67,500', complexity: 'O(n·C)', step: '3/4' },
+                draw(ctx, W, H, col, anim) {
+                    ctx.fillStyle = col.bg; ctx.fillRect(0, 0, W, H);
+                    ctx.fillStyle = col.txt2; ctx.font = 'bold 14px Space Grotesk'; ctx.textAlign = 'center';
+                    ctx.fillText('EVALUACIÓN DE MÉTRICAS', W / 2, 28);
+                    const n = 8, scores = [0.71, 0.88, 0.65, 0.93, 0.77, 0.82, 0.69, 0.85];
+                    const maxScore = Math.max(...scores);
+                    const ox = W * .06, barArea = W * .88;
+                    const barW = Math.min(36, barArea / n - 8);
+                    const baseY = H - 55, topY = 48, chartH = baseY - topY;
+                    // Axis
+                    ctx.strokeStyle = col.border; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(ox, topY); ctx.lineTo(ox, baseY); ctx.lineTo(W - ox, baseY); ctx.stroke();
+                    // Y-axis labels
+                    ctx.fillStyle = col.txt2; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'right';
+                    for (let v = 0; v <= 1; v += 0.25) {
+                        const yy = baseY - v * chartH;
+                        ctx.fillText(v.toFixed(2), ox - 5, yy + 3);
+                        ctx.strokeStyle = col.border + '44'; ctx.beginPath(); ctx.moveTo(ox, yy); ctx.lineTo(W - ox, yy); ctx.stroke();
+                    }
+                    scores.forEach((s, i) => {
+                        const x = ox + 20 + i * (barArea - 40) / (n - 1);
+                        const visH = anim ? chartH * s * Math.min(1, anim * 2 - i * 0.15) : chartH * s;
+                        const bH = Math.max(0, visH), y = baseY - bH;
+                        const isBest = s === maxScore;
+                        const baseColor = isBest ? col.green : col.orange;
+                        // Bar
+                        const g = ctx.createLinearGradient(x, y, x, baseY);
+                        g.addColorStop(0, baseColor); g.addColorStop(1, baseColor + '33');
+                        ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(x - barW/2, y, barW, bH, [4,4,0,0]); ctx.fill();
+                        if (isBest) {
+                            ctx.strokeStyle = col.green; ctx.lineWidth = 2;
+                            ctx.beginPath(); ctx.roundRect(x - barW/2 - 2, y - 2, barW + 4, bH + 4, [6,6,0,0]); ctx.stroke();
+                            // Star
+                            ctx.fillStyle = col.gold; ctx.font = '16px serif'; ctx.textAlign = 'center';
+                            ctx.fillText('⭐', x, y - 14);
+                        }
+                        // Score label
+                        ctx.fillStyle = col.txt; ctx.font = 'bold 11px JetBrains Mono'; ctx.textAlign = 'center';
+                        if (bH > 20) ctx.fillText(s.toFixed(2), x, y - 4);
+                        // X label
+                        ctx.fillStyle = col.txt2; ctx.font = '10px JetBrains Mono';
+                        ctx.fillText('θ' + (i + 1), x, baseY + 16);
+                    });
+                    ctx.fillStyle = col.green; ctx.font = 'bold 13px Space Grotesk'; ctx.textAlign = 'center';
+                    ctx.fillText(`Mejor: θ₄ = 0.93 accuracy | Evaluadas: ${n} de ~67,500`, W / 2, H - 14);
+                }
+            },
+            {
+                title: 'Seleccionar la Mejor Configuración',
+                icon: '🏆',
+                desc: `Se elige <b>θ* = argmax score(θᵢ)</b>. La configuración ganadora se usa para el <b>modelo final en producción</b>. <span class="highlight">Fin del algoritmo</span>. Opcional: repetir con más muestras si el presupuesto lo permite.`,
+                analogy: 'En el taller, ya probaste tus recetas aleatorias. Ahora eliges la que obtuvo la mejor calificación y la declaras como la receta oficial. ¡Listo!',
+                keyPoint: '🏁 Random Search termina aquí. El ganador θ* se entrena con todos los datos.',
+                pseudo: `<span class="cm">// Paso 4: Seleccionar θ*</span>
+<span class="kw">const</span> mejor = scores
+  .<span class="fn">sort</span>((a,b) => b.score - a.score)
+  [<span class="nb">0</span>];
 
-// ── CANVAS HELPERS ─────────────────────────────────────────────────
-function getCtx(id){
-  const c = $(id);
-  if(!c) return null;
-  c.width = c.offsetWidth || c.parentElement.offsetWidth || 600;
-  return {c, ctx:c.getContext('2d'), W:c.width, H:c.height};
-}
+<span class="cm">// θ* → Modelo Final</span>
+<span class="kw">return</span> <span class="fn">entrenarFinal</span>(mejor.θ);
+<span class="cm">// 🏆 ¡Listo!</span>`,
+                stats: { evaluated: '8', total: '~67,500', complexity: 'O(n)', step: '4/4' },
+                draw(ctx, W, H, col, anim) {
+                    ctx.fillStyle = col.bg; ctx.fillRect(0, 0, W, H);
+                    const cx = W / 2, cy = H / 2;
+                    // Animated rings
+                    const ringCount = 4;
+                    for (let r = ringCount; r >= 0; r--) {
+                        const radius = 40 + r * 28;
+                        const alpha = anim ? Math.max(0, 0.15 - r * 0.03) : 0.12 - r * 0.02;
+                        ctx.beginPath(); ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+                        ctx.fillStyle = col.green + Math.round(alpha * 255).toString(16).padStart(2, '0');
+                        ctx.fill();
+                    }
+                    // Center glow
+                    const mainR = 60;
+                    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, mainR);
+                    g.addColorStop(0, col.green + 'cc'); g.addColorStop(0.6, col.green + '55'); g.addColorStop(1, col.green + '00');
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(cx, cy, mainR, 0, 2 * Math.PI); ctx.fill();
+                    // Border
+                    ctx.strokeStyle = col.green; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.arc(cx, cy, mainR - 10, 0, 2 * Math.PI); ctx.stroke();
+                    // Text
+                    ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Space Grotesk'; ctx.textAlign = 'center';
+                    ctx.fillText('θ*', cx, cy - 5);
+                    ctx.fillStyle = col.txt2; ctx.font = '13px Space Grotesk';
+                    ctx.fillText('argmax score(θᵢ)', cx, cy + 18);
+                    // Trophy label
+                    ctx.fillStyle = col.gold; ctx.font = 'bold 15px Space Grotesk';
+                    ctx.fillText('🏆 Mejor configuración → Modelo Final', W / 2, H - 30);
+                    // Stats
+                    ctx.fillStyle = col.txt2; ctx.font = '12px JetBrains Mono';
+                    ctx.fillText('θ* = { n_est: 342, depth: 8, lr: 0.053 } → acc: 0.93', W / 2, H - 10);
+                }
+            }
+        ];
 
-function getColors(){
-  const s = getComputedStyle(document.documentElement);
-  return {
-    bg:    s.getPropertyValue('--bg3').trim(),
-    card:  s.getPropertyValue('--card').trim(),
-    border:s.getPropertyValue('--border').trim(),
-    txt:   s.getPropertyValue('--txt').trim(),
-    txt2:  s.getPropertyValue('--txt2').trim(),
-    orange:s.getPropertyValue('--orange').trim(),
-    accent:s.getPropertyValue('--accent').trim(),
-    green: s.getPropertyValue('--green').trim(),
-    gold:  s.getPropertyValue('--gold').trim(),
-    red:   s.getPropertyValue('--red').trim(),
-  };
-}
+        function updateStepper(step) {
+            document.querySelectorAll('.stepper-dot').forEach((dot, j) => {
+                dot.classList.remove('active', 'completed');
+                if (j === step) dot.classList.add('active');
+                else if (j < step) dot.classList.add('completed');
+            });
+            for (let j = 0; j < 3; j++) {
+                const line = $('sline' + j);
+                if (line) line.classList.toggle('filled', j < step);
+            }
+        }
 
-function drawAxis(ctx, ox, oy, W, H, col, labelX='', labelY=''){
-  ctx.strokeStyle=col; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(W-20,oy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox,H*.08); ctx.stroke();
-  ctx.fillStyle=col; ctx.font='11px Space Grotesk'; ctx.textAlign='center';
-  if(labelX) ctx.fillText(labelX,(ox+W-20)/2,oy+20);
-  ctx.save(); ctx.translate(ox-22,(oy+H*.08)/2); ctx.rotate(-Math.PI/2);
-  if(labelY) ctx.fillText(labelY,0,0);
-  ctx.restore();
-}
+        function updateStepButtons(step) {
+            document.querySelectorAll('.step-btn').forEach((b, j) => {
+                b.classList.toggle('active', j === step);
+            });
+            $('step-prev').disabled = step <= 0;
+            $('step-next').disabled = step >= 3;
+        }
 
-// ══ 03 DARTS ══════════════════════════════════════════════════════
-let dartsPoints=[], dartsGridPts=[], optX=0, optY=0, dartsAnim=null;
+        function updateExplanation(step) {
+            const d = stepData[step];
+            $('step-exp-title').innerHTML = `<span class="step-badge">PASO ${step + 1}</span> ${d.icon} ${d.title}`;
+            $('step-exp-body').innerHTML = d.desc;
+            // Analogy
+            const analogy = $('step-exp-analogy');
+            $('step-analogy-text').innerHTML = `<b>Analogía:</b> ${d.analogy}`;
+            analogy.style.display = 'flex';
+            // Key point
+            const key = $('step-exp-key');
+            key.innerHTML = d.keyPoint;
+            key.style.display = 'block';
+            // Animate in
+            $('steps-explanation').style.animation = 'slideInLeft .4s ease';
+            setTimeout(() => $('steps-explanation').style.animation = '', 400);
+        }
 
-function dartUpdate(){
-  $('darts_nv').textContent = $('darts_n').value;
-}
+        function updateTechPanel(step) {
+            const d = stepData[step];
+            $('step-pseudo-content').innerHTML = d.pseudo;
+            $('stat-evaluated').textContent = d.stats.evaluated;
+            $('stat-total').textContent = d.stats.total;
+            $('stat-complexity').textContent = d.stats.complexity;
+            $('stat-step-num').textContent = d.stats.step;
+        }
 
-function clearDarts(){
-  dartsPoints=[]; dartsGridPts=[];
-  if(dartsAnim) clearInterval(dartsAnim);
-  animDartsInit();
-  $('darts-result').innerHTML='Lienzo limpio. Vuelve a animar.';
-}
+        function goStep(i) {
+            // Cancel animation frames
+            stepAnimFrames.forEach(id => cancelAnimationFrame(id));
+            stepAnimFrames = [];
+            // Hide finish overlay
+            $('steps-finish-overlay').classList.remove('visible');
+            // Update state
+            const prevStep = currentStep;
+            currentStep = i;
+            // Sound
+            StepSounds.tick();
+            // Visual updates
+            updateStepper(i);
+            updateStepButtons(i);
+            updateExplanation(i);
+            updateTechPanel(i);
+            // Canvas glow
+            $('steps-canvas-area').classList.add('active-glow');
+            setTimeout(() => $('steps-canvas-area').classList.remove('active-glow'), 800);
+            // Animated draw
+            const result = getCtx('c-steps');
+            if (!result) return;
+            const { c, ctx, W, H } = result;
+            const col = getColors();
+            let startTime = null;
+            const duration = 800;
+            function animFrame(ts) {
+                if (!startTime) startTime = ts;
+                const elapsed = ts - startTime;
+                const progress = Math.min(1, elapsed / duration);
+                const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                ctx.clearRect(0, 0, W, H);
+                stepData[i].draw(ctx, W, H, col, eased);
+                if (progress < 1) {
+                    stepAnimFrames.push(requestAnimationFrame(animFrame));
+                } else {
+                    // If step 4 (index 3), show finish overlay after a delay
+                    if (i === 3) {
+                        setTimeout(() => {
+                            $('steps-finish-overlay').classList.add('visible');
+                            StepSounds.success();
+                        }, 600);
+                    }
+                }
+            }
+            stepAnimFrames.push(requestAnimationFrame(animFrame));
+        }
 
-function animDartsInit(){
-  const {c,ctx,W,H} = getCtx('c-darts');
-  const col = getColors();
-  ctx.clearRect(0,0,W,H);
-  // background
-  ctx.fillStyle = col.card; ctx.fillRect(0,0,W,H);
-  // grid dots
-  for(let x=40;x<W-20;x+=40) for(let y=30;y<H-20;y+=40){
-    ctx.beginPath(); ctx.arc(x,y,1.5,0,2*Math.PI);
-    ctx.fillStyle=col.border; ctx.fill();
-  }
-  // target rings
-  const cx=W/2, cy=H/2+10;
-  optX=cx+rnd(-50,50); optY=cy+rnd(-45,45);
-  [100,72,50,30,14].forEach((r,i)=>{
-    ctx.beginPath(); ctx.arc(cx,cy,r*(W/520),0,2*Math.PI);
-    ctx.strokeStyle = i===0 ? col.border : col.border;
-    ctx.lineWidth = i===0?2:1;
-    ctx.setLineDash([i>0?4:0,i>0?3:0]);
-    ctx.stroke(); ctx.setLineDash([]);
-  });
-  // optimal
-  ctx.beginPath(); ctx.arc(optX,optY,10*(W/520),0,2*Math.PI);
-  ctx.fillStyle=col.green+'55'; ctx.fill();
-  ctx.beginPath(); ctx.arc(optX,optY,5*(W/520),0,2*Math.PI);
-  ctx.fillStyle=col.green; ctx.fill();
-  ctx.fillStyle=col.green; ctx.font='bold 11px JetBrains Mono'; ctx.textAlign='left';
-  ctx.fillText('θ* óptimo', optX+12*(W/520), optY+4);
-  // label
-  ctx.fillStyle=col.txt2; ctx.font='12px Space Grotesk'; ctx.textAlign='center';
-  ctx.fillText('Espacio de hiperparámetros Θ', W/2, 18);
-}
+        function stepPrev() {
+            if (currentStep > 0) { StepSounds.swish(); goStep(currentStep - 1); }
+        }
 
-function animDarts(){
-  animDartsInit();
-  const n = +$('darts_n').value;
-  const {c,ctx,W,H} = getCtx('c-darts');
-  const col = getColors();
-  const cx=W/2, cy=H/2+10, R=100*(W/520);
-  dartsPoints=[];
-  for(let i=0;i<n;i++){
-    const ang=rnd(0,2*Math.PI), r=rnd(5,R*1.05);
-    dartsPoints.push({x:cx+Math.cos(ang)*r, y:cy+Math.sin(ang)*r, score:rnd(.55,.98)});
-  }
-  let bestIdx=dartsPoints.reduce((b,p,i)=>p.score>dartsPoints[b].score?i:b,0);
-  let i=0;
-  animDartsInit();
-  dartsAnim = setInterval(()=>{
-    if(i>=n){clearInterval(dartsAnim);
-      // draw best highlight
-      const p=dartsPoints[bestIdx];
-      ctx.beginPath(); ctx.arc(p.x,p.y,14*(W/520),0,2*Math.PI);
-      ctx.strokeStyle=col.gold; ctx.lineWidth=3; ctx.stroke();
-      ctx.fillStyle=col.gold; ctx.font='bold 11px JetBrains Mono';
-      ctx.textAlign='left'; ctx.fillText('Mejor: '+p.score.toFixed(3),p.x+16,p.y+4);
-      const dist=Math.sqrt((p.x-optX)**2+(p.y-optY)**2);
-      $('darts-result').innerHTML=`<b>Resultado RS (n=${n}):</b> Mejor accuracy encontrado = <b style="color:var(--green)">${p.score.toFixed(4)}</b> | Distancia al óptimo real: <b>${dist.toFixed(1)}px equiv.</b><br>Random Search exploró <b>${n}</b> de ~∞ combinaciones posibles.`;
-      return;
-    }
-    const p=dartsPoints[i];
-    ctx.beginPath(); ctx.arc(p.x,p.y,9*(W/520),0,2*Math.PI);
-    ctx.fillStyle=col.orange+'cc'; ctx.fill();
-    ctx.fillStyle=col.orange+'44'; ctx.lineWidth=2; ctx.strokeStyle=col.orange; ctx.stroke();
-    ctx.fillStyle=col.txt2; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
-    ctx.fillText((i+1),p.x,p.y+4);
-    i++;
-  },90);
-}
+        function stepNext() {
+            if (currentStep < 3) { StepSounds.swish(); goStep(currentStep + 1); }
+            else if (currentStep === -1) goStep(0);
+        }
 
-function animGrid(){
-  animDartsInit();
-  const {c,ctx,W,H} = getCtx('c-darts');
-  const col = getColors();
-  const g = +$('cmp_gs').value || 5;
-  dartsGridPts=[];
-  const ox=W*.1, oy=H*.85, rw=W*.8, rh=H*.72;
-  let i=0;
-  const pts=[];
-  for(let gx=0;gx<g;gx++) for(let gy=0;gy<g;gy++){
-    pts.push({x:ox+gx*rw/(g-1), y:oy-gy*rh/(g-1)});
-  }
-  dartsAnim=setInterval(()=>{
-    if(i>=pts.length){clearInterval(dartsAnim);
-      $('darts-result').innerHTML=`<b>Grid Search (g=${g}, d=2):</b> Evaluó <b style="color:var(--accent)">${g*g} combinaciones</b> en cuadrícula uniforme. RS con n=${$('darts_n').value} usaría solo <b>${$('darts_n').value}</b> evaluaciones.`;
-      return;
-    }
-    const p=pts[i];
-    ctx.beginPath(); ctx.arc(p.x,p.y,7*(W/520),0,2*Math.PI);
-    ctx.fillStyle=col.accent+'99'; ctx.fill();
-    ctx.strokeStyle=col.accent; ctx.lineWidth=1.2; ctx.stroke();
-    i++;
-  },40);
-}
+        function autoSteps() {
+            const btn = $('auto-play-btn');
+            if (autoInt) {
+                clearInterval(autoInt);
+                autoInt = null;
+                btn.classList.remove('playing');
+                $('auto-icon').textContent = '▶';
+                return;
+            }
+            btn.classList.add('playing');
+            $('auto-icon').textContent = '■';
+            let s = 0;
+            goStep(s);
+            autoInt = setInterval(() => {
+                s++;
+                if (s > 3) {
+                    clearInterval(autoInt);
+                    autoInt = null;
+                    btn.classList.remove('playing');
+                    $('auto-icon').textContent = '▶';
+                    return;
+                }
+                goStep(s);
+            }, 2500);
+        }
 
-// ══ 04 STEPS ══════════════════════════════════════════════════════
-let currentStep = -1;
-const stepData = [
-  {
-    title:'Paso 1: Definir el Espacio de Búsqueda',
-    desc:`<b>Definimos los rangos posibles</b> de cada hiperparámetro. Ej: n_estimators ∈ [50,500], max_depth ∈ [2,15], lr ∈ [0.001,0.3]. Este "cajón" es de donde muestrearemos — nunca exploraremos todo.`,
-    draw(ctx,W,H,col){
-      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
-      const params=[['n_estimators','50 ─────────── 500'],['max_depth','2 ─────── 15'],['learning_rate','0.001 ──── 0.3']];
-      params.forEach(([name,range],i)=>{
-        const y=45+i*52, barW=W*.5;
-        ctx.fillStyle=col.card2||'#1c2840'; ctx.roundRect(W*.18,y-18,barW,32,6); ctx.fill();
-        ctx.fillStyle=col.txt2; ctx.font='12px Space Grotesk'; ctx.textAlign='right';
-        ctx.fillText(name, W*.17,y+1);
-        ctx.fillStyle=col.accent+'55'; ctx.fillRect(W*.19,y-10,barW-10,16);
-        ctx.fillStyle=col.accent; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
-        ctx.fillText(range, W*.18+barW/2, y+2);
-      });
-      ctx.fillStyle=col.gold; ctx.font='bold 13px Space Grotesk'; ctx.textAlign='center';
-      ctx.fillText('Θ = Espacio de búsqueda definido ✓', W/2, H-18);
-    }
-  },
-  {
-    title:'Paso 2: Muestrear Aleatoriamente',
-    desc:`<b>Se toman n muestras aleatorias</b> de forma uniforme del espacio Θ. Cada muestra es un vector de hiperparámetros θᵢ = (n_est=230, depth=7, lr=0.08). Esto es <b>muestreo sin reposición</b> en el espacio continuo.`,
-    draw(ctx,W,H,col){
-      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
-      const n=8;
-      for(let i=0;i<n;i++){
-        const x=W*.1+rnd(0,W*.8), y=30+rnd(0,H-60);
-        ctx.beginPath(); ctx.arc(x,y,11,0,2*Math.PI);
-        ctx.fillStyle=col.orange; ctx.globalAlpha=.85; ctx.fill(); ctx.globalAlpha=1;
-        ctx.fillStyle='#000'; ctx.font='bold 10px JetBrains Mono'; ctx.textAlign='center';
-        ctx.fillText('θ'+(i+1),x,y+4);
-      }
-      ctx.fillStyle=col.orange; ctx.font='bold 13px Space Grotesk'; ctx.textAlign='center';
-      ctx.fillText(`${n} configuraciones muestreadas aleatoriamente`, W/2, H-12);
-    }
-  },
-  {
-    title:'Paso 3: Evaluar cada configuración',
-    desc:`Para cada θᵢ muestreado: <b>entrenar el modelo</b> con esos hiperparámetros, luego <b>evaluar</b> con cross-validation. Se obtiene una métrica (accuracy, AUC, F1...). Costo = <b>n × C</b> en total.`,
-    draw(ctx,W,H,col){
-      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
-      const n=6, scores=[0.71,0.88,0.65,0.93,0.77,0.82];
-      scores.forEach((s,i)=>{
-        const x=W*.08+i*(W*.84/(n-1)), bH=(H-60)*s, y=H-35-bH;
-        const g=ctx.createLinearGradient(x,y,x,H-35);
-        g.addColorStop(0,s===Math.max(...scores)?col.green:col.orange);
-        g.addColorStop(1,(s===Math.max(...scores)?col.green:col.orange)+'44');
-        ctx.fillStyle=g; ctx.roundRect(x-14,y,28,bH,4); ctx.fill();
-        ctx.fillStyle=col.txt2; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
-        ctx.fillText('θ'+(i+1),x,H-18);
-        ctx.fillStyle=col.txt; ctx.font='bold 11px JetBrains Mono';
-        ctx.fillText(s.toFixed(2),x,y-6);
-      });
-      ctx.fillStyle=col.green; ctx.font='bold 13px Space Grotesk'; ctx.textAlign='center';
-      ctx.fillText('Métrica evaluada para cada θᵢ', W/2, 14);
-    }
-  },
-  {
-    title:'Paso 4: Seleccionar la mejor configuración',
-    desc:`Se elige <b>θ* = argmax score(θᵢ)</b>. Esa configuración ganadora se usa para el modelo final. <b>Fin del algoritmo</b>. Opcional: repetir con más muestras si el presupuesto lo permite.`,
-    draw(ctx,W,H,col){
-      ctx.fillStyle=col.bg; ctx.fillRect(0,0,W,H);
-      const cx=W/2, cy=H/2-10;
-      ctx.beginPath(); ctx.arc(cx,cy,52,0,2*Math.PI);
-      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,52);
-      g.addColorStop(0,col.green+'88'); g.addColorStop(1,col.green+'11');
-      ctx.fillStyle=g; ctx.fill();
-      ctx.strokeStyle=col.green; ctx.lineWidth=3; ctx.stroke();
-      ctx.fillStyle=col.green; ctx.font='bold 22px Space Grotesk'; ctx.textAlign='center';
-      ctx.fillText('θ* elegido',cx,cy+8);
-      ctx.fillStyle=col.txt2; ctx.font='13px Space Grotesk'; ctx.textAlign='center';
-      ctx.fillText('argmax  score(θᵢ)',cx,cy+32);
-      ctx.fillStyle=col.gold; ctx.font='bold 14px Space Grotesk';
-      ctx.fillText('🏆 Mejor configuración → Modelo Final', W/2, H-16);
-    }
-  }
-];
 
-function goStep(i){
-  currentStep=i;
-  document.querySelectorAll('[id^=sbtn]').forEach((b,j)=>{
-    b.style.background = j===i ? 'var(--accent)' : '';
-    b.style.color = j===i ? '#fff' : '';
-    b.style.borderColor = j===i ? 'var(--accent)' : '';
-  });
-  const {c,ctx,W,H} = getCtx('c-steps');
-  const col = getColors();
-  ctx.clearRect(0,0,W,H);
-  stepData[i].draw(ctx,W,H,col);
-  $('steps-result').innerHTML = `<b style="color:var(--accent)">${stepData[i].title}</b><br>${stepData[i].desc}`;
-}
+        // ══ 05 COMPARE ════════════════════════════════════════════════════
+        function runCompare() {
+            const nRS = +$('cmp_rs').value, gGS = +$('cmp_gs').value;
+            $('cmp_rsv').textContent = nRS; $('cmp_gsv').textContent = gGS;
+            const col = getColors();
+            // RS canvas
+            (() => {
+                const { c, ctx, W, H } = getCtx('c-rs');
+                ctx.fillStyle = col.card; ctx.fillRect(0, 0, W, H);
+                const pts = [];
+                for (let i = 0; i < nRS; i++) pts.push({ x: rnd(.05, .95) * W, y: rnd(.08, .88) * H, s: rnd(.6, .97) });
+                const best = pts.reduce((b, p) => p.s > b.s ? p : b, pts[0]);
+                pts.forEach(p => {
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, 2 * Math.PI);
+                    ctx.fillStyle = col.orange + (p === best ? '' : '99'); ctx.fill();
+                    if (p === best) { ctx.strokeStyle = col.gold; ctx.lineWidth = 3; ctx.stroke(); }
+                });
+                ctx.fillStyle = col.txt2; ctx.font = '11px JetBrains Mono'; ctx.textAlign = 'center';
+                ctx.fillText(`n = ${nRS} evaluaciones`, W / 2, H - 8);
+            })();
+            // GS canvas
+            (() => {
+                const { c, ctx, W, H } = getCtx('c-gs');
+                ctx.fillStyle = col.card; ctx.fillRect(0, 0, W, H);
+                const total = gGS * gGS, ox = W * .07, oy = H * .07, rw = W * .86, rh = H * .8;
+                for (let gx = 0; gx < gGS; gx++) for (let gy = 0; gy < gGS; gy++) {
+                    ctx.beginPath();
+                    ctx.arc(ox + gx * rw / (gGS - 1), oy + gy * rh / (gGS - 1), 7, 0, 2 * Math.PI);
+                    ctx.fillStyle = col.accent + '77'; ctx.fill();
+                }
+                ctx.fillStyle = col.txt2; ctx.font = '11px JetBrains Mono'; ctx.textAlign = 'center';
+                ctx.fillText(`g²=${gGS}²=${total} evaluaciones`, W / 2, H - 8);
+                if (total > 100) { ctx.fillStyle = col.red; ctx.font = 'bold 11px Space Grotesk'; ctx.fillText('⚠ Explosión combinatoria', W / 2, H * .08); }
+            })();
+            const totalGS = gGS * gGS;
+            const savings = Math.max(0, (1 - nRS / totalGS) * 100).toFixed(1);
+            $('cmp-result').innerHTML = `<b>Random Search:</b> <span style="color:var(--orange)">${nRS}</span> evaluaciones &nbsp;|&nbsp; <b>Grid Search (d=2):</b> <span style="color:var(--accent)">${totalGS}</span> evaluaciones<br><b style="color:var(--green)">Ahorro: ${savings}% menos evaluaciones con Random Search</b> para dimensión 2. Con d=5: Grid necesitaría <b>${Math.pow(gGS, 5).toLocaleString()}</b> evaluaciones.`;
+        }
 
-let autoInt=null;
-function autoSteps(){
-  if(autoInt) clearInterval(autoInt);
-  let s=0; goStep(s);
-  autoInt=setInterval(()=>{ s=(s+1)%4; goStep(s); if(s===3&&autoInt){setTimeout(()=>clearInterval(autoInt),1500);} },2200);
-}
-
-// ══ 05 COMPARE ════════════════════════════════════════════════════
-function runCompare(){
-  const nRS=+$('cmp_rs').value, gGS=+$('cmp_gs').value;
-  $('cmp_rsv').textContent=nRS; $('cmp_gsv').textContent=gGS;
-  const col=getColors();
-  // RS canvas
-  (()=>{
-    const {c,ctx,W,H}=getCtx('c-rs');
-    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
-    const pts=[];
-    for(let i=0;i<nRS;i++) pts.push({x:rnd(.05,.95)*W, y:rnd(.08,.88)*H, s:rnd(.6,.97)});
-    const best=pts.reduce((b,p)=>p.s>b.s?p:b,pts[0]);
-    pts.forEach(p=>{
-      ctx.beginPath(); ctx.arc(p.x,p.y,9,0,2*Math.PI);
-      ctx.fillStyle=col.orange+(p===best?'':'99'); ctx.fill();
-      if(p===best){ctx.strokeStyle=col.gold;ctx.lineWidth=3;ctx.stroke();}
-    });
-    ctx.fillStyle=col.txt2; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
-    ctx.fillText(`n = ${nRS} evaluaciones`, W/2, H-8);
-  })();
-  // GS canvas
-  (()=>{
-    const {c,ctx,W,H}=getCtx('c-gs');
-    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
-    const total=gGS*gGS, ox=W*.07, oy=H*.07, rw=W*.86, rh=H*.8;
-    for(let gx=0;gx<gGS;gx++) for(let gy=0;gy<gGS;gy++){
-      ctx.beginPath();
-      ctx.arc(ox+gx*rw/(gGS-1), oy+gy*rh/(gGS-1), 7, 0, 2*Math.PI);
-      ctx.fillStyle=col.accent+'77'; ctx.fill();
-    }
-    ctx.fillStyle=col.txt2; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
-    ctx.fillText(`g²=${gGS}²=${total} evaluaciones`, W/2, H-8);
-    if(total>100){ctx.fillStyle=col.red;ctx.font='bold 11px Space Grotesk';ctx.fillText('⚠ Explosión combinatoria',W/2,H*.08);}
-  })();
-  const totalGS=gGS*gGS;
-  const savings=Math.max(0,(1-nRS/totalGS)*100).toFixed(1);
-  $('cmp-result').innerHTML=`<b>Random Search:</b> <span style="color:var(--orange)">${nRS}</span> evaluaciones &nbsp;|&nbsp; <b>Grid Search (d=2):</b> <span style="color:var(--accent)">${totalGS}</span> evaluaciones<br><b style="color:var(--green)">Ahorro: ${savings}% menos evaluaciones con Random Search</b> para dimensión 2. Con d=5: Grid necesitaría <b>${Math.pow(gGS,5).toLocaleString()}</b> evaluaciones.`;
-}
-
-// ══ 06 COSTS ══════════════════════════════════════════════════════
-function drawCosts(){
-  const C=+$('cost_c').value, maxN=+$('cost_max').value;
-  $('cost_cv').textContent=C+'s'; $('cost_maxv').textContent=maxN;
-  const col=getColors();
-  // RS — linear
-  (()=>{
-    const {c,ctx,W,H}=getCtx('c-cost-rs');
-    const ox=45, oy=H-35, rw=W-65, rh=H-55;
-    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
-    drawAxis(ctx,ox,oy,W,H,col.txt2,'n (muestras)','Tiempo');
-    ctx.strokeStyle=col.orange; ctx.lineWidth=3; ctx.beginPath();
-    for(let n=0;n<=maxN;n++){
-      const x=ox+n*rw/maxN, y=oy-Math.min((C*n/600)*rh,rh*.95);
-      n===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    } ctx.stroke();
-    // shading
-    ctx.beginPath();
-    for(let n=0;n<=maxN;n++){const x=ox+n*rw/maxN,y=oy-Math.min((C*n/600)*rh,rh*.95);n===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
-    ctx.lineTo(ox+maxN*rw/maxN,oy); ctx.lineTo(ox,oy); ctx.closePath();
-    ctx.fillStyle=col.orange+'22'; ctx.fill();
-    ctx.fillStyle=col.orange; ctx.font='bold 13px JetBrains Mono'; ctx.textAlign='right';
-    ctx.fillText('O(n·C)', W-8, 22);
-    // label total
-    const total=(C*maxN).toFixed(1);
-    ctx.fillStyle=col.txt2; ctx.font='11px Space Grotesk'; ctx.textAlign='center';
-    ctx.fillText(`n=${maxN} → ${total}s total`, W/2, H-6);
-  })();
-  // GS — quadratic
-  (()=>{
-    const {c,ctx,W,H}=getCtx('c-cost-gs');
-    const ox=45, oy=H-35, rw=W-65, rh=H-55;
-    ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
-    drawAxis(ctx,ox,oy,W,H,col.txt2,'g (vals/param)','Tiempo');
-    const maxG=Math.min(maxN,50);
-    ctx.strokeStyle=col.accent; ctx.lineWidth=3; ctx.beginPath();
-    for(let g=0;g<=maxG;g++){
-      const x=ox+g*rw/maxG, cost=C*g*g, y=oy-Math.min((cost/(C*maxG*maxG))*rh,rh*.95);
-      g===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    } ctx.stroke();
-    ctx.beginPath();
-    for(let g=0;g<=maxG;g++){const x=ox+g*rw/maxG,y=oy-Math.min((C*g*g/(C*maxG*maxG))*rh,rh*.95);g===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
-    ctx.lineTo(ox+maxG*rw/maxG,oy); ctx.lineTo(ox,oy); ctx.closePath();
-    ctx.fillStyle=col.accent+'22'; ctx.fill();
-    ctx.fillStyle=col.accent; ctx.font='bold 13px JetBrains Mono'; ctx.textAlign='right';
-    ctx.fillText('O(g²·C)', W-8, 22);
-    const total=(C*maxG*maxG).toFixed(1);
-    ctx.fillStyle=col.txt2; ctx.font='11px Space Grotesk'; ctx.textAlign='center';
-    ctx.fillText(`g=${maxG}, d=2 → ${total}s total`, W/2, H-6);
-  })();
-  // hardware recommender
-  const totalRS=C*maxN;
-  const ids=['hw-laptop','hw-pc','hw-ws','hw-gpu','hw-cloud'];
-  ids.forEach(id=>$(id).className='hw-card');
-  let target='hw-laptop', warn=false;
-  if(totalRS<120){ target='hw-laptop'; }
-  else if(totalRS<1800){ target='hw-pc'; }
-  else if(totalRS<7200){ target='hw-ws'; }
-  else if(totalRS<72000){ target='hw-gpu'; warn=totalRS>36000; }
-  else { target='hw-cloud'; warn=true; }
-  const card=$(target);
-  card.classList.add('active'); if(warn) card.classList.add('warn');
-  const mins=(totalRS/60).toFixed(1), hrs=(totalRS/3600).toFixed(2);
-  $('cost-result').innerHTML=`<b>Random Search:</b> n=${maxN} × C=${C}s = <b style="color:var(--orange)">${totalRS.toFixed(0)}s ≈ ${mins} min ≈ ${hrs} h</b><br>
-<b>Grid Search (d=2, g=${Math.min(maxN,50)}):</b> ${Math.min(maxN,50)}² × C=${C}s = <b style="color:var(--accent)">${(C*Math.pow(Math.min(maxN,50),2)).toFixed(0)}s</b><br>
+        // ══ 06 COSTS ══════════════════════════════════════════════════════
+        function drawCosts() {
+            const C = +$('cost_c').value, maxN = +$('cost_max').value;
+            $('cost_cv').textContent = C + 's'; $('cost_maxv').textContent = maxN;
+            const col = getColors();
+            // RS — linear
+            (() => {
+                const { c, ctx, W, H } = getCtx('c-cost-rs');
+                const ox = 45, oy = H - 35, rw = W - 65, rh = H - 55;
+                ctx.fillStyle = col.card; ctx.fillRect(0, 0, W, H);
+                drawAxis(ctx, ox, oy, W, H, col.txt2, 'n (muestras)', 'Tiempo');
+                ctx.strokeStyle = col.orange; ctx.lineWidth = 3; ctx.beginPath();
+                for (let n = 0; n <= maxN; n++) {
+                    const x = ox + n * rw / maxN, y = oy - Math.min((C * n / 600) * rh, rh * .95);
+                    n === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                } ctx.stroke();
+                // shading
+                ctx.beginPath();
+                for (let n = 0; n <= maxN; n++) { const x = ox + n * rw / maxN, y = oy - Math.min((C * n / 600) * rh, rh * .95); n === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+                ctx.lineTo(ox + maxN * rw / maxN, oy); ctx.lineTo(ox, oy); ctx.closePath();
+                ctx.fillStyle = col.orange + '22'; ctx.fill();
+                ctx.fillStyle = col.orange; ctx.font = 'bold 13px JetBrains Mono'; ctx.textAlign = 'right';
+                ctx.fillText('O(n·C)', W - 8, 22);
+                // label total
+                const total = (C * maxN).toFixed(1);
+                ctx.fillStyle = col.txt2; ctx.font = '11px Space Grotesk'; ctx.textAlign = 'center';
+                ctx.fillText(`n=${maxN} → ${total}s total`, W / 2, H - 6);
+            })();
+            // GS — quadratic
+            (() => {
+                const { c, ctx, W, H } = getCtx('c-cost-gs');
+                const ox = 45, oy = H - 35, rw = W - 65, rh = H - 55;
+                ctx.fillStyle = col.card; ctx.fillRect(0, 0, W, H);
+                drawAxis(ctx, ox, oy, W, H, col.txt2, 'g (vals/param)', 'Tiempo');
+                const maxG = Math.min(maxN, 50);
+                ctx.strokeStyle = col.accent; ctx.lineWidth = 3; ctx.beginPath();
+                for (let g = 0; g <= maxG; g++) {
+                    const x = ox + g * rw / maxG, cost = C * g * g, y = oy - Math.min((cost / (C * maxG * maxG)) * rh, rh * .95);
+                    g === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                } ctx.stroke();
+                ctx.beginPath();
+                for (let g = 0; g <= maxG; g++) { const x = ox + g * rw / maxG, y = oy - Math.min((C * g * g / (C * maxG * maxG)) * rh, rh * .95); g === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+                ctx.lineTo(ox + maxG * rw / maxG, oy); ctx.lineTo(ox, oy); ctx.closePath();
+                ctx.fillStyle = col.accent + '22'; ctx.fill();
+                ctx.fillStyle = col.accent; ctx.font = 'bold 13px JetBrains Mono'; ctx.textAlign = 'right';
+                ctx.fillText('O(g²·C)', W - 8, 22);
+                const total = (C * maxG * maxG).toFixed(1);
+                ctx.fillStyle = col.txt2; ctx.font = '11px Space Grotesk'; ctx.textAlign = 'center';
+                ctx.fillText(`g=${maxG}, d=2 → ${total}s total`, W / 2, H - 6);
+            })();
+            // hardware recommender
+            const totalRS = C * maxN;
+            const ids = ['hw-laptop', 'hw-pc', 'hw-ws', 'hw-gpu', 'hw-cloud'];
+            ids.forEach(id => $(id).className = 'hw-card');
+            let target = 'hw-laptop', warn = false;
+            if (totalRS < 120) { target = 'hw-laptop'; }
+            else if (totalRS < 1800) { target = 'hw-pc'; }
+            else if (totalRS < 7200) { target = 'hw-ws'; }
+            else if (totalRS < 72000) { target = 'hw-gpu'; warn = totalRS > 36000; }
+            else { target = 'hw-cloud'; warn = true; }
+            const card = $(target);
+            card.classList.add('active'); if (warn) card.classList.add('warn');
+            const mins = (totalRS / 60).toFixed(1), hrs = (totalRS / 3600).toFixed(2);
+            $('cost-result').innerHTML = `<b>Random Search:</b> n=${maxN} × C=${C}s = <b style="color:var(--orange)">${totalRS.toFixed(0)}s ≈ ${mins} min ≈ ${hrs} h</b><br>
+<b>Grid Search (d=2, g=${Math.min(maxN, 50)}):</b> ${Math.min(maxN, 50)}² × C=${C}s = <b style="color:var(--accent)">${(C * Math.pow(Math.min(maxN, 50), 2)).toFixed(0)}s</b><br>
 <span style="color:var(--txt2);font-size:.85em;">Hardware recomendado para RS resaltado abajo.</span>`;
-}
+        }
 
-// ══ 07 SANDBOX ════════════════════════════════════════════════════
-let sbAnim=null;
-function runSandbox(){
-  const tMin=+$('sb_tmin').value, tMax=+$('sb_tmax').value;
-  const dMin=+$('sb_dmin').value, dMax=+$('sb_dmax').value;
-  const lMin=+$('sb_lmin').value/100, lMax=+$('sb_lmax').value/100;
-  const n=+$('sb_n').value;
-  const samples=[];
-  for(let i=0;i<n;i++){
-    const t=rndInt(tMin,tMax), d=rndInt(dMin,dMax), l=rnd(lMin,lMax);
-    const score=0.55+0.36*(1-Math.exp(-t/200))+0.05*(d-dMin)/(dMax-dMin+1)+0.03*Math.random()-0.02*(l-lMin)/(lMax-lMin+1);
-    samples.push({t,d,l:l.toFixed(4),score:Math.min(.995,score)});
-  }
-  const best=samples.reduce((b,s)=>s.score>b.score?s:b,samples[0]);
-  $('sb-result').innerHTML=`
+        // ══ 07 SANDBOX ════════════════════════════════════════════════════
+        let sbAnim = null;
+        function runSandbox() {
+            const tMin = +$('sb_tmin').value, tMax = +$('sb_tmax').value;
+            const dMin = +$('sb_dmin').value, dMax = +$('sb_dmax').value;
+            const lMin = +$('sb_lmin').value / 100, lMax = +$('sb_lmax').value / 100;
+            const n = +$('sb_n').value;
+            const samples = [];
+            for (let i = 0; i < n; i++) {
+                const t = rndInt(tMin, tMax), d = rndInt(dMin, dMax), l = rnd(lMin, lMax);
+                const score = 0.55 + 0.36 * (1 - Math.exp(-t / 200)) + 0.05 * (d - dMin) / (dMax - dMin + 1) + 0.03 * Math.random() - 0.02 * (l - lMin) / (lMax - lMin + 1);
+                samples.push({ t, d, l: l.toFixed(4), score: Math.min(.995, score) });
+            }
+            const best = samples.reduce((b, s) => s.score > b.score ? s : b, samples[0]);
+            $('sb-result').innerHTML = `
 <span style="color:var(--green)">▶ Simulación completada (n=${n} muestras)</span>
 Mejor configuración encontrada:
   <span style="color:var(--gold)">n_estimators = ${best.t}</span>  |  <span style="color:var(--orange)">max_depth = ${best.d}</span>  |  <span style="color:var(--accent)">learning_rate = ${best.l}</span>
   Score → <strong style="color:var(--green)">${best.score.toFixed(5)}</strong>
   
-Costo estimado: ${n} evaluaciones × ~5s/modelo = <b>${(n*5).toFixed(0)}s</b>
+Costo estimado: ${n} evaluaciones × ~5s/modelo = <b>${(n * 5).toFixed(0)}s</b>
 Grid equivalente (3 params, g=6): 6³ = <b>216 evaluaciones</b> vs tus <b>${n}</b>`;
-  // draw scatter
-  const {c,ctx,W,H}=getCtx('c-sandbox');
-  const col=getColors();
-  ctx.fillStyle=col.card; ctx.fillRect(0,0,W,H);
-  const ox=45, oy=H-30, rw=W-60, rh=H-50;
-  drawAxis(ctx,ox,oy,W,H,col.txt2,'n_estimators','Score');
-  // ticks
-  ctx.fillStyle=col.txt2; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
-  [tMin, Math.round((tMin+tMax)/2), tMax].forEach(v=>{
-    const x=ox+(v-tMin)*rw/(tMax-tMin||1);
-    ctx.fillText(v,x,oy+16);
-  });
-  samples.forEach(s=>{
-    const x=ox+(s.t-tMin)*rw/(tMax-tMin||1);
-    const y=oy-(s.score-.5)*rh/.5;
-    ctx.beginPath(); ctx.arc(x,Math.max(10,Math.min(oy,y)),s===best?10:5,0,2*Math.PI);
-    ctx.fillStyle=s===best?col.green:col.orange+'99'; ctx.fill();
-    if(s===best){ctx.strokeStyle=col.gold;ctx.lineWidth=2.5;ctx.stroke();}
-  });
-  ctx.fillStyle=col.green; ctx.font='bold 11px Space Grotesk'; ctx.textAlign='left';
-  const bx=ox+(best.t-tMin)*rw/(tMax-tMin||1);
-  const by=oy-(best.score-.5)*rh/.5;
-  ctx.fillText('★ Mejor: '+best.score.toFixed(4), bx+12, by+4);
-}
+            // draw scatter
+            const { c, ctx, W, H } = getCtx('c-sandbox');
+            const col = getColors();
+            ctx.fillStyle = col.card; ctx.fillRect(0, 0, W, H);
+            const ox = 45, oy = H - 30, rw = W - 60, rh = H - 50;
+            drawAxis(ctx, ox, oy, W, H, col.txt2, 'n_estimators', 'Score');
+            // ticks
+            ctx.fillStyle = col.txt2; ctx.font = '10px JetBrains Mono'; ctx.textAlign = 'center';
+            [tMin, Math.round((tMin + tMax) / 2), tMax].forEach(v => {
+                const x = ox + (v - tMin) * rw / (tMax - tMin || 1);
+                ctx.fillText(v, x, oy + 16);
+            });
+            samples.forEach(s => {
+                const x = ox + (s.t - tMin) * rw / (tMax - tMin || 1);
+                const y = oy - (s.score - .5) * rh / .5;
+                ctx.beginPath(); ctx.arc(x, Math.max(10, Math.min(oy, y)), s === best ? 10 : 5, 0, 2 * Math.PI);
+                ctx.fillStyle = s === best ? col.green : col.orange + '99'; ctx.fill();
+                if (s === best) { ctx.strokeStyle = col.gold; ctx.lineWidth = 2.5; ctx.stroke(); }
+            });
+            ctx.fillStyle = col.green; ctx.font = 'bold 11px Space Grotesk'; ctx.textAlign = 'left';
+            const bx = ox + (best.t - tMin) * rw / (tMax - tMin || 1);
+            const by = oy - (best.score - .5) * rh / .5;
+            ctx.fillText('★ Mejor: ' + best.score.toFixed(4), bx + 12, by + 4);
+        }
 
-function resetSandbox(){
-  $('sb_tmin').value=50; $('sb_tmax').value=400;
-  $('sb_dmin').value=2; $('sb_dmax').value=12;
-  $('sb_lmin').value=1; $('sb_lmax').value=30;
-  $('sb_n').value=20;
-  $('sb-result').innerHTML='Presiona Ejecutar para simular Random Search con tus parámetros.';
-  const {c,ctx,W,H}=getCtx('c-sandbox');
-  ctx.clearRect(0,0,W,H);
-}
+        function resetSandbox() {
+            $('sb_tmin').value = 50; $('sb_tmax').value = 400;
+            $('sb_dmin').value = 2; $('sb_dmax').value = 12;
+            $('sb_lmin').value = 1; $('sb_lmax').value = 30;
+            $('sb_n').value = 20;
+            $('sb-result').innerHTML = 'Presiona Ejecutar para simular Random Search con tus parámetros.';
+            const { c, ctx, W, H } = getCtx('c-sandbox');
+            ctx.clearRect(0, 0, W, H);
+        }
 
-// ══ 08 QUIZ ════════════════════════════════════════════════════════
-const QUIZ = [
-  {
-    q:'¿Cuál es la complejidad de Random Search?',
-    opts:['O(gᵈ · C)','O(n · C)','O(n²)','O(log n)'],
-    ans:1,
-    exp:'O(n·C) donde n=muestras y C=costo de evaluar un modelo. Es lineal en n.'
-  },
-  {
-    q:'Tienes 5 hiperparámetros y 6 valores posibles cada uno. ¿Cuántas evaluaciones hace Grid Search?',
-    opts:['30','1,296','7,776','600'],
-    ans:2,
-    exp:'6⁵ = 7,776. Grid Search es exponencial en d (dimensiones): O(gᵈ).'
-  },
-  {
-    q:'¿Cuándo es mejor usar Grid Search en lugar de Random Search?',
-    opts:['Muchos hiperparámetros, recursos limitados','Pocos hiperparámetros y precisión crítica','Modelos muy complejos','Nunca, RS siempre es mejor'],
-    ans:1,
-    exp:'Grid Search es preferible con ≤3 hiperparámetros cuando el espacio es pequeño y necesitas garantía del óptimo de la grilla.'
-  },
-  {
-    q:'¿Qué representa la variable "C" en O(n × C)?',
-    opts:['Número de clases','Costo de entrenar y evaluar UN modelo','Capacidad de memoria RAM','Cantidad de datos de entrenamiento'],
-    ans:1,
-    exp:'C es el costo computacional de entrenar un modelo con una configuración y calcular su métrica (cross-validation incluida).'
-  },
-  {
-    q:'Si doblas n en Random Search, ¿qué pasa con el tiempo total?',
-    opts:['Se cuadruplica','Se mantiene igual','Se duplica','Depende de gᵈ'],
-    ans:2,
-    exp:'Como la complejidad es O(n·C) y C es constante, doblar n duplica exactamente el tiempo. Comportamiento lineal y predecible.'
-  }
-];
+        // ══ 08 QUIZ ════════════════════════════════════════════════════════
+        const QUIZ = [
+            {
+                q: '¿Cuál es la complejidad de Random Search?',
+                opts: ['O(gᵈ · C)', 'O(n · C)', 'O(n²)', 'O(log n)'],
+                ans: 1,
+                exp: 'O(n·C) donde n=muestras y C=costo de evaluar un modelo. Es lineal en n.'
+            },
+            {
+                q: 'Tienes 5 hiperparámetros y 6 valores posibles cada uno. ¿Cuántas evaluaciones hace Grid Search?',
+                opts: ['30', '1,296', '7,776', '600'],
+                ans: 2,
+                exp: '6⁵ = 7,776. Grid Search es exponencial en d (dimensiones): O(gᵈ).'
+            },
+            {
+                q: '¿Cuándo es mejor usar Grid Search en lugar de Random Search?',
+                opts: ['Muchos hiperparámetros, recursos limitados', 'Pocos hiperparámetros y precisión crítica', 'Modelos muy complejos', 'Nunca, RS siempre es mejor'],
+                ans: 1,
+                exp: 'Grid Search es preferible con ≤3 hiperparámetros cuando el espacio es pequeño y necesitas garantía del óptimo de la grilla.'
+            },
+            {
+                q: '¿Qué representa la variable "C" en O(n × C)?',
+                opts: ['Número de clases', 'Costo de entrenar y evaluar UN modelo', 'Capacidad de memoria RAM', 'Cantidad de datos de entrenamiento'],
+                ans: 1,
+                exp: 'C es el costo computacional de entrenar un modelo con una configuración y calcular su métrica (cross-validation incluida).'
+            },
+            {
+                q: 'Si doblas n en Random Search, ¿qué pasa con el tiempo total?',
+                opts: ['Se cuadruplica', 'Se mantiene igual', 'Se duplica', 'Depende de gᵈ'],
+                ans: 2,
+                exp: 'Como la complejidad es O(n·C) y C es constante, doblar n duplica exactamente el tiempo. Comportamiento lineal y predecible.'
+            }
+        ];
 
-let quizAnswers=[], quizDone=false;
-function renderQuiz(){
-  const container=$('quiz-container');
-  container.innerHTML='';
-  QUIZ.forEach((q,qi)=>{
-    const div=document.createElement('div');
-    div.style.cssText='margin-bottom:1.6rem;';
-    div.innerHTML=`<div class="quiz-q">${qi+1}. ${q.q}</div>
+        let quizAnswers = [], quizDone = false;
+        function renderQuiz() {
+            const container = $('quiz-container');
+            container.innerHTML = '';
+            QUIZ.forEach((q, qi) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'margin-bottom:1.6rem;';
+                div.innerHTML = `<div class="quiz-q">${qi + 1}. ${q.q}</div>
       <div class="quiz-opts" id="qopts-${qi}">
-        ${q.opts.map((o,oi)=>`<button class="quiz-opt" onclick="answerQuiz(${qi},${oi})" id="qopt-${qi}-${oi}">${o}</button>`).join('')}
+        ${q.opts.map((o, oi) => `<button class="quiz-opt" onclick="answerQuiz(${qi},${oi})" id="qopt-${qi}-${oi}">${o}</button>`).join('')}
       </div>
       <div class="quiz-feedback" id="qfb-${qi}"></div>`;
-    container.appendChild(div);
-  });
-}
+                container.appendChild(div);
+            });
+        }
 
-function answerQuiz(qi,oi){
-  if(quizAnswers[qi]!==undefined) return;
-  quizAnswers[qi]=oi;
-  const q=QUIZ[qi];
-  $(`qopt-${qi}-${oi}`).classList.add(oi===q.ans?'correct':'wrong');
-  if(oi!==q.ans) $(`qopt-${qi}-${q.ans}`).classList.add('correct');
-  document.querySelectorAll(`#qopts-${qi} .quiz-opt`).forEach(b=>b.style.pointerEvents='none');
-  $(`qfb-${qi}`).innerHTML=(oi===q.ans?'✅ ':'❌ ')+q.exp;
-  if(quizAnswers.filter(a=>a!==undefined).length===QUIZ.length) showScore();
-}
+        function answerQuiz(qi, oi) {
+            if (quizAnswers[qi] !== undefined) return;
+            quizAnswers[qi] = oi;
+            const q = QUIZ[qi];
+            $(`qopt-${qi}-${oi}`).classList.add(oi === q.ans ? 'correct' : 'wrong');
+            if (oi !== q.ans) $(`qopt-${qi}-${q.ans}`).classList.add('correct');
+            document.querySelectorAll(`#qopts-${qi} .quiz-opt`).forEach(b => b.style.pointerEvents = 'none');
+            $(`qfb-${qi}`).innerHTML = (oi === q.ans ? '✅ ' : '❌ ') + q.exp;
+            if (quizAnswers.filter(a => a !== undefined).length === QUIZ.length) showScore();
+        }
 
-function showScore(){
-  const correct=quizAnswers.filter((a,i)=>a===QUIZ[i].ans).length;
-  $('quiz-score').style.display='block';
-  $('quiz-score').innerHTML=`Puntuación final: ${correct}/${QUIZ.length} — ${correct===QUIZ.length?'🎯 ¡Perfecto!':correct>=3?'👍 Muy bien':'💡 Sigue aprendiendo'}`;
-  $('quiz-reset-btn').style.display='inline-flex';
-}
+        function showScore() {
+            const correct = quizAnswers.filter((a, i) => a === QUIZ[i].ans).length;
+            $('quiz-score').style.display = 'block';
+            $('quiz-score').innerHTML = `Puntuación final: ${correct}/${QUIZ.length} — ${correct === QUIZ.length ? '🎯 ¡Perfecto!' : correct >= 3 ? '👍 Muy bien' : '💡 Sigue aprendiendo'}`;
+            $('quiz-reset-btn').style.display = 'inline-flex';
+        }
 
-function resetQuiz(){
-  quizAnswers=[]; quizDone=false;
-  $('quiz-score').style.display='none';
-  $('quiz-reset-btn').style.display='none';
-  renderQuiz();
-}
+        function resetQuiz() {
+            quizAnswers = []; quizDone = false;
+            $('quiz-score').style.display = 'none';
+            $('quiz-reset-btn').style.display = 'none';
+            renderQuiz();
+        }
 
-// ── INIT ──────────────────────────────────────────────────────────
-window.addEventListener('load', ()=>{
-  // small delay to let layout settle
-  setTimeout(()=>{
-    animDartsInit();
-    goStep(0);
-    runCompare();
-    drawCosts();
-    renderQuiz();
-  }, 150);
-});
+        // ── INIT ──────────────────────────────────────────────────────────
+        window.addEventListener('load', () => {
+            // small delay to let layout settle
+            setTimeout(() => {
+                animDartsInit();
+                goStep(0);
+                runCompare();
+                drawCosts();
+                renderQuiz();
+            }, 150);
+        });
 
-window.addEventListener('resize', ()=>{
-  animDartsInit();
-  runCompare();
-  drawCosts();
-});
-</script>
+        window.addEventListener('resize', () => {
+            animDartsInit();
+            runCompare();
+            drawCosts();
+        });
+    </script>
 </body>
+
 </html>
